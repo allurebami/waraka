@@ -1,19 +1,16 @@
 import {cert,getApps,initializeApp} from 'firebase-admin/app';
 import {getAuth} from 'firebase-admin/auth';
 import {getFirestore} from 'firebase-admin/firestore';
-import {getStorage} from 'firebase-admin/storage';
 
 function firebaseAdmin(){
   if(getApps().length)return getApps()[0];
   const projectId=process.env.FIREBASE_PROJECT_ID;
   const clientEmail=process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey=process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g,'\n');
-  const storageBucket=process.env.FIREBASE_STORAGE_BUCKET;
-  if(!projectId||!clientEmail||!privateKey||!storageBucket)throw new Error('Configuration Firebase incomplète.');
-  return initializeApp({credential:cert({projectId,clientEmail,privateKey}),storageBucket});
+  if(!projectId||!clientEmail||!privateKey)throw new Error('Configuration Firebase incomplète.');
+  return initializeApp({credential:cert({projectId,clientEmail,privateKey})});
 }
 export function store(){return getFirestore(firebaseAdmin())}
-export function files(){return getStorage(firebaseAdmin()).bucket()}
 export async function getWarakaUser(req:Request){
   const header=req.headers.get('authorization')||'';
   if(!header.startsWith('Bearer '))return null;

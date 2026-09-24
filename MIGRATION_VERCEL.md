@@ -1,25 +1,28 @@
-# WARAKA sur Vercel et Firebase
+# WARAKA sur Vercel, Firebase Spark et Vercel Blob Hobby
 
-La branche `migration-vercel` prépare une application Next.js hébergée sur Vercel avec Firebase Authentication (courriel et mot de passe), Cloud Firestore (profils, fiches, messages et audit) et Cloud Storage for Firebase (documents privés). La version précédente prévoyait Clerk, Neon et Vercel Blob ; ces services ne sont plus nécessaires pour l'application.
+La branche `migration-vercel` prépare Next.js sur Vercel avec Firebase Authentication (courriel et mot de passe), Cloud Firestore (profils, fiches, messages et audit) et Vercel Blob **privé** (documents). Elle n'utilise aucun service Firebase qui nécessite le forfait Blaze. L'utilisateur a demandé une configuration sans facturation.
 
-## Préparer Firebase
+## Firebase sans facturation
 
-1. Dans la console Firebase, créer ou choisir **un projet** et enregistrer une application **Web**. Activer Authentication > Email/Password. Ajouter le domaine Vercel de WARAKA dans les domaines autorisés d'Authentication. Les comptes doivent vérifier leur courriel avant d'utiliser leur espace.
-2. Créer la base Cloud Firestore en mode sécurisé, puis le bucket Cloud Storage. Firebase exige le plan **Blaze** pour Cloud Storage ; vérifier les coûts et budgets avant activation.
-3. Conserver les règles Firestore et Storage qui refusent les accès directs depuis le navigateur. Toutes les lectures et écritures WARAKA passent par l'API Next.js, qui valide le jeton Firebase et contrôle le propriétaire ou l'adresse administratrice. Le modèle des règles est fourni dans `firebase/firestore.rules` et `firebase/storage.rules`.
-4. Dans Paramètres du projet > Comptes de service, créer une clé de compte de service. Reporter ses champs uniquement dans les variables **chiffrées** du projet Vercel ; ne pas ajouter le fichier JSON au dépôt ni l'envoyer dans une conversation. La clé privée peut être copiée dans `FIREBASE_PRIVATE_KEY` avec des sauts de ligne `\\n`.
+1. Créer ou choisir un projet Firebase sur le forfait **Spark**, sans lier de compte de facturation. Enregistrer une application Web. Activer Authentication > Email/Password et ajouter le domaine Vercel de WARAKA aux domaines autorisés. Les comptes doivent vérifier leur courriel avant d'utiliser leur espace.
+2. Créer l'unique base Cloud Firestore gratuite du projet en mode sécurisé. Appliquer `firebase/firestore.rules` qui interdit les lectures directes depuis le navigateur. Toutes les lectures et écritures WARAKA passent par l'API Next.js qui vérifie les jetons Firebase et les droits d'accès.
+3. Dans Paramètres du projet > Comptes de service, créer une clé de compte de service pour le serveur. Copier ses champs uniquement dans les variables chiffrées de Vercel. Ne jamais publier le JSON ou l'envoyer dans une conversation.
 
-## Variables Vercel
+Le forfait Spark n'exige aucun moyen de paiement. Quand le quota gratuit est épuisé, le service concerné devient indisponible jusqu'à la remise à zéro du quota ; ne pas activer Blaze. Cloud Storage for Firebase n'est pas utilisé, car la création de nouveaux buckets exige Blaze.
 
-Renseigner les variables de `.env.example` dans Vercel pour Preview et Production, idéalement avec **des projets Firebase distincts** pour isoler les essais. Les quatre variables `NEXT_PUBLIC_` viennent de la configuration de l'application Web ; la clé API côté navigateur est publique. Les quatre variables `FIREBASE_` correspondent au projet, au compte de service et au nom exact du bucket. `WARAKA_ADMIN_EMAILS` contient les adresses vérifiées habilitées, séparées par des virgules. Ne publier aucune clé de service.
+## Vercel Hobby
+
+Relier le magasin privé `waraka-documents` déjà créé au futur projet Vercel afin d'injecter `BLOB_READ_WRITE_TOKEN`. Conserver l'espace Vercel en forfait Hobby. Vercel Blob est gratuit sous ses limites Hobby et bloque l'accès au stockage si les limites sont dépassées, sans facturer le dépassement. Les documents restent accessibles uniquement par l'API après contrôle de leur propriétaire ou d'un administrateur.
+
+Ajouter les variables de `.env.example` dans les environnements Preview et Production. Les quatre variables `NEXT_PUBLIC_` viennent de la configuration de l'application Web Firebase ; la clé API côté navigateur est publique. `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL` et `FIREBASE_PRIVATE_KEY` viennent du compte de service. La clé privée peut contenir des sauts de ligne `\\n`. `WARAKA_ADMIN_EMAILS` contient les adresses vérifiées habilitées, séparées par des virgules. Isoler idéalement Preview et Production avec des projets Firebase distincts.
 
 Importer `allurebami/waraka` dans Vercel après avoir placé la branche de migration sur la branche de déploiement. Le dépôt n'est pas encore déployé sur Vercel. La base Sites D1 était vide lors de l'audit : aucune donnée utilisateur n'était alors à transférer.
 
-## Vérifier avant l'ouverture
+## Vérifications avant ouverture
 
 - Création de compte, validation du courriel, connexion et déconnexion.
 - Profil, document PDF/JPEG/PNG privé (5 Mo maximum), soumission d'un dossier.
-- Impossible pour un second compte de consulter le document ; impossible de lire directement Firestore ou Storage depuis un navigateur.
+- Impossible pour un second compte de consulter le document ; impossible de lire directement Firestore depuis le navigateur.
 - Seule une adresse administratrice vérifiée peut examiner et publier une fiche.
 - Annuaire et vérification publique d'une référence, messages et journal des décisions.
 

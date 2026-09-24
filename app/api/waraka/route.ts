@@ -1,4 +1,5 @@
-import {administrator,files,getWarakaUser,store} from '@/app/firebase-admin';
+import {administrator,getWarakaUser,store} from '@/app/firebase-admin';
+import {put,get,del} from '@vercel/blob';
 import type {DocumentData,Query} from 'firebase-admin/firestore';
 export const dynamic='force-dynamic';
 export const runtime='nodejs';
@@ -16,7 +17,7 @@ export async function GET(req:Request){try{
  if(action==='verify'){const code=clean(url.searchParams.get('code'),80);if(!code)return json({error:'Saisissez une référence.'},400);const record=(await rows('records','code',code.toUpperCase())).find(r=>r.published===1);return json({record:record||null})}
  const user=await getWarakaUser(req);if(!user)return json({error:'Connectez-vous pour accéder à votre espace.'},401);
  if(action==='account'){const [profile,docs,records]=await Promise.all([one('profiles',user.userId),rows('documents','owner',user.userId),rows('records','owner',user.userId)]);return json({profile,documents:recent(docs,'created_at').map(({id,name,size,created_at})=>({id,name,size,created_at})),products:recent(records.filter(r=>r.kind==='produit'),'updated_at').map(({id,name,status})=>({id,name,status}))})}
- if(action==='document'){const id=clean(url.searchParams.get('id'),100);const doc=await one('documents',id) as any;if(!doc||doc.owner!==user.userId&&!administrator(user.email))return json({error:'Document non accessible.'},404);const file=files().file(doc.object_key);if(!(await file.exists())[0])return json({error:'Document introuvable.'},404);const [bytes]=await file.download();return new Response(new Uint8Array(bytes),{headers:{'Content-Type':doc.mime,'Content-Disposition':"attachment; filename*=UTF-8''"+encodeURIComponent(doc.name),'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}})}
+ if(action==='document'){const id=clean(url.searchParams.get('id'),100);const doc=await one('documents',id) as any;if(!doc||doc.owner!==user.userId&&!administrator(user.email))return json({error:'Document non accessible.'},404);const file=await get(doc.object_key,{access:'private'});if(!file||file.statusCode!==200)return json({error:'Document introuvable.'},404);return new Response(file.stream,{headers:{'Content-Type':doc.mime,'Content-Disposition':"attachment; filename*=UTF-8''"+encodeURIComponent(doc.name),'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}})}
  if(action==='admin'){if(!administrator(user.email))return json({error:'Ce compte n’est pas habilité. L’accès doit être attribué à une adresse administratrice avant l’examen des dossiers.'},403);const [records,messages,logs,docs]=await Promise.all(['records','messages','audit','documents'].map(n=>rows(n)));return json({records:recent(records,'updated_at'),messages:recent(messages,'created_at',200),logs:recent(logs,'created_at',200),documents:docs.map(({id,owner,name})=>({id,owner,name}))})}
  return json({error:'Ressource introuvable.'},404);
  }catch(e){console.error('WARAKA read failed',e);return json({error:'Le chargement est momentanément indisponible. Réessayez.'},503)}}
@@ -30,7 +31,7 @@ export async function POST(req:Request){try{
   const f=(await req.formData()).get('file');if(!(f instanceof File)||!['application/pdf','image/jpeg','image/png'].includes(f.type)||f.size>5*1024*1024||f.size===0)return json({error:'Choisissez un PDF, JPEG ou PNG de moins de 5 Mo.'},400);
   const docs=await rows('documents','owner',user.userId);if(docs.length>=20)return json({error:'La limite de 20 documents est atteinte. Contactez l’équipe.'},400);
   const bytes=await f.arrayBuffer(),magic=new Uint8Array(bytes.slice(0,8));const valid=f.type==='application/pdf'?String.fromCharCode(...magic.slice(0,5))==='%PDF-':f.type==='image/png'?magic[0]===137&&magic[1]===80&&magic[2]===78&&magic[3]===71:magic[0]===255&&magic[1]===216&&magic[2]===255;if(!valid)return json({error:'Le contenu du fichier ne correspond pas au format annoncé.'},400);
-  const id=crypto.randomUUID(),key='documents/'+user.userId+'/'+id,file=files().file(key);await file.save(Buffer.from(bytes),{metadata:{contentType:f.type},resumable:false});try{await collection('documents').doc(id).create({owner:user.userId,name:clean(f.name,200),size:f.size,mime:f.type,object_key:key,created_at:now()})}catch(e){await file.delete();throw e}return json({ok:true,id});
+  const id=crypto.randomUUID(),key='documents/'+user.userId+'/'+id;const file=await put(key,Buffer.from(bytes),{access:'private',contentType:f.type,addRandomSuffix:false});try{await collection('documents').doc(id).create({owner:user.userId,name:clean(f.name,200),size:f.size,mime:f.type,object_key:file.url,created_at:now()})}catch(e){await del(file.url);throw e}return json({ok:true,id});
  }
  if(Number(req.headers.get('content-length')||0)>24000)return json({error:'Le contenu est trop volumineux.'},413);let b:any;try{b=await req.json()}catch{return json({error:'Les informations transmises sont invalides.'},400)}
  if(action==='profile'){
