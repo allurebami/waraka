@@ -2,6 +2,13 @@
 
 La branche `migration-vercel` prépare Next.js sur Vercel avec Firebase Authentication (courriel et mot de passe), Cloud Firestore (profils, fiches, messages et audit) et Vercel Blob **privé** (documents). Elle n'utilise aucun service Firebase qui nécessite le forfait Blaze. L'utilisateur a demandé une configuration sans facturation.
 
+## État vérifié le 24 septembre 2026
+
+- Le projet Firebase `waraka-a2e59` est sur Spark (0 $/mois).
+- L'application Web « Waraka Web » est enregistrée et la méthode Authentication « Adresse e-mail/Mot de passe » est activée.
+- Firestore attend le choix de sa région définitive et n'a pas encore été créé. La région doit être décidée par le propriétaire avant la création.
+- La configuration serveur Vercel, la liaison du magasin Blob et les essais réels restent à faire. Aucun projet Waraka n'a été déployé sur Vercel.
+
 ## Firebase sans facturation
 
 1. Créer ou choisir un projet Firebase sur le forfait **Spark**, sans lier de compte de facturation. Enregistrer une application Web. Activer Authentication > Email/Password et ajouter le domaine Vercel de WARAKA aux domaines autorisés. Les comptes doivent vérifier leur courriel avant d'utiliser leur espace.
