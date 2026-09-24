@@ -1,27 +1,26 @@
-# WARAKA sur Vercel
+# WARAKA sur Vercel et Firebase
 
-La branche `migration-vercel` porte la version Next.js de WARAKA. Elle remplace l'identité Sites par Clerk, D1 par Neon Postgres et R2 par Vercel Blob privé. Le build local `pnpm build` et la vérification TypeScript `pnpm exec tsc --noEmit` ont réussi le 24 septembre 2026.
+La branche `migration-vercel` prépare une application Next.js hébergée sur Vercel avec Firebase Authentication (courriel et mot de passe), Cloud Firestore (profils, fiches, messages et audit) et Cloud Storage for Firebase (documents privés). La version précédente prévoyait Clerk, Neon et Vercel Blob ; ces services ne sont plus nécessaires pour l'application.
 
-## Configuration du projet
+## Préparer Firebase
 
-Importer le dépôt `allurebami/waraka` dans l'espace Vercel `christianbardots-projects`. Avant une ouverture publique, créer et relier au projet :
+1. Dans la console Firebase, créer ou choisir **un projet** et enregistrer une application **Web**. Activer Authentication > Email/Password. Ajouter le domaine Vercel de WARAKA dans les domaines autorisés d'Authentication. Les comptes doivent vérifier leur courriel avant d'utiliser leur espace.
+2. Créer la base Cloud Firestore en mode sécurisé, puis le bucket Cloud Storage. Firebase exige le plan **Blaze** pour Cloud Storage ; vérifier les coûts et budgets avant activation.
+3. Conserver les règles Firestore et Storage qui refusent les accès directs depuis le navigateur. Toutes les lectures et écritures WARAKA passent par l'API Next.js, qui valide le jeton Firebase et contrôle le propriétaire ou l'adresse administratrice. Le modèle des règles est fourni dans `firebase/firestore.rules` et `firebase/storage.rules`.
+4. Dans Paramètres du projet > Comptes de service, créer une clé de compte de service. Reporter ses champs uniquement dans les variables **chiffrées** du projet Vercel ; ne pas ajouter le fichier JSON au dépôt ni l'envoyer dans une conversation. La clé privée peut être copiée dans `FIREBASE_PRIVATE_KEY` avec des sauts de ligne `\\n`.
 
-1. une base Neon Postgres (variable `DATABASE_URL`) ;
-2. un magasin Vercel Blob avec accès **private** (`BLOB_READ_WRITE_TOKEN` ou authentification OIDC fournie par Vercel) ;
-3. une instance Clerk (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`).
+## Variables Vercel
 
-Configurer aussi `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in`, `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up` et `WARAKA_ADMIN_EMAILS` avec les adresses explicitement autorisées. Garder toutes les clés hors du dépôt. Exemple de noms dans `.env.example`.
+Renseigner les variables de `.env.example` dans Vercel pour Preview et Production, idéalement avec **des projets Firebase distincts** pour isoler les essais. Les quatre variables `NEXT_PUBLIC_` viennent de la configuration de l'application Web ; la clé API côté navigateur est publique. Les quatre variables `FIREBASE_` correspondent au projet, au compte de service et au nom exact du bucket. `WARAKA_ADMIN_EMAILS` contient les adresses vérifiées habilitées, séparées par des virgules. Ne publier aucune clé de service.
 
-Lorsque `DATABASE_URL` est disponible dans un environnement sécurisé, lancer une fois `pnpm db:migrate` pour créer les cinq tables. Les migrations SQL utilisent des chaînes de date ISO afin de préserver les comparaisons et réponses de l'API. Le script est idempotent pour la première création ; toute évolution future du schéma devra avoir sa propre migration.
+Importer `allurebami/waraka` dans Vercel après avoir placé la branche de migration sur la branche de déploiement. Le dépôt n'est pas encore déployé sur Vercel. La base Sites D1 était vide lors de l'audit : aucune donnée utilisateur n'était alors à transférer.
 
-## Contrôles avant publication
+## Vérifier avant l'ouverture
 
-- Vérifier l'annuaire et la recherche d'une référence sans être connecté.
-- Créer un compte Clerk, enregistrer un profil, déposer un document privé et soumettre le dossier.
-- Vérifier qu'un autre compte ne peut pas lire le document.
-- Vérifier que seul un administrateur autorisé voit les dossiers et peut publier une fiche.
-- Vérifier le formulaire de contact et le journal de décisions.
+- Création de compte, validation du courriel, connexion et déconnexion.
+- Profil, document PDF/JPEG/PNG privé (5 Mo maximum), soumission d'un dossier.
+- Impossible pour un second compte de consulter le document ; impossible de lire directement Firestore ou Storage depuis un navigateur.
+- Seule une adresse administratrice vérifiée peut examiner et publier une fiche.
+- Annuaire et vérification publique d'une référence, messages et journal des décisions.
 
-La base Sites D1 était vide au moment de l'audit. Aucun profil, document ou message n'attendait alors un transfert. Le site Sites reste accessible pendant cette vérification. Ne pas basculer de domaine avant les contrôles.
-
-Le connecteur Vercel disponible dans ChatGPT ne possède pas actuellement le jeton pour l'espace `christianbardots-projects` ; le navigateur connecté voit toutefois cet espace et le dépôt GitHub.
+`pnpm build` et la vérification TypeScript passent sans clés Firebase ; cela ne vérifie pas encore le fonctionnement réel des services. Garder le site Sites accessible pendant la validation.
