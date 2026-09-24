@@ -1,27 +1,30 @@
 # Migration WARAKA vers Vercel — état du 24 septembre 2026
 
 ## Source vérifiée
-Cette branche contient la version source publiée sur Sites, issue du commit `b185d1f48a86ba425f2370dc1af93b960e6aa55d`. Les images et polices ont été importées. Le fichier généré `tsconfig.tsbuildinfo` a été omis.
+Cette branche contient la version source publiée sur Sites, issue du commit `b185d1f48a86ba425f2370dc1af93b960e6aa55d`. Images et polices sont présentes ; seul le fichier généré `tsconfig.tsbuildinfo` a été omis.
 
-## État réel
-- Le dépôt GitHub `allurebami/waraka` est accessible avec des droits d'administration. La branche `main` conserve son contenu initial tant que l'import n'est pas revu.
-- Le site actuel reste sur Sites : https://waraka.espace-de-tr-2919.chatgpt.site
-- La base D1 contient les tables `profiles`, `records`, `documents`, `messages` et `audit` ; elles ne contiennent encore aucune ligne. Aucune migration de données utilisateur n'est donc requise à cet instant.
-- Aucun projet Vercel n'est visible dans le compte relié à cette session. Il faut vérifier le bon compte Vercel et son accès à l'installation GitHub avant de pouvoir importer le dépôt et publier une URL Vercel.
+## État
+- Le dépôt `allurebami/waraka` est accessible avec les droits d'administration. L'import est sur `migration-vercel`, en PR brouillon ; `main` garde sa version initiale.
+- Le site courant reste accessible sur https://waraka.espace-de-tr-2919.chatgpt.site
+- La base D1 contient cinq tables (`profiles`, `records`, `documents`, `messages`, `audit`) vides lors de la vérification. Il n'y a pas de données utilisateur à importer à cette date.
+- Aucun projet ni équipe Vercel n'apparaît dans la connexion Vercel disponible pour cette session. Vérifier l'accès au bon compte et à l'intégration GitHub avant l'import.
 
-## Dépendances de la plateforme Sites
-Le code actuel ne peut pas être publié tel quel sur Vercel :
-1. `scripts/run-framework.mjs` et `vite.config.ts` construisent une application Vinext/Cloudflare Worker, et non un déploiement Next.js pour Vercel.
-2. `db/raw.ts` utilise `cloudflare:workers`, D1 et R2. Le point d'API `app/api/waraka/route.ts` en dépend pour tous les formulaires, l'annuaire, la vérification et les documents.
-3. `app/chatgpt-auth.ts` et les liens de connexion utilisent des routes et des en-têtes d'identité fournis exclusivement par Sites. Ils doivent être remplacés par un vrai système de connexion sur Vercel.
-4. La liste d'administrateurs vient de `WARAKA_ADMIN_EMAILS`. Elle devra être ajoutée aux variables du projet Vercel.
+## Architecture choisie
+L'utilisateur a retenu **Vercel + Clerk** :
+- **Neon Postgres** via la place de marché Vercel pour les cinq tables ;
+- **Vercel Blob privé** pour les justificatifs PDF et images ;
+- **Clerk** pour l'inscription et la connexion ;
+- `WARAKA_ADMIN_EMAILS` comme liste d'administration côté serveur.
 
-## Suite de la migration
-1. Choisir et configurer une base de données SQL, un stockage privé de documents et une connexion des utilisateurs compatibles avec Vercel. Garder la même logique de validation des dossiers et les mêmes restrictions d'accès aux documents.
-2. Remplacer les adaptateurs D1/R2 et Sites Auth. Recréer les cinq tables avec les migrations présentes dans `drizzle/`, adaptées au moteur de la nouvelle base.
-3. Passer au build Next.js de Vercel, installer les dépendances, lancer un build local et tester les parcours publics et connectés.
-4. Importer le dépôt GitHub dans le compte Vercel, configurer les variables et lancer un déploiement de prévisualisation. Vérifier ensuite l'annuaire, les formulaires, les documents et l'administration avant de publier en production.
+Ne jamais exposer les clés Clerk serveur, la chaîne de connexion SQL ni le jeton Blob dans le dépôt. La configuration du projet doit fournir notamment `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` et `WARAKA_ADMIN_EMAILS`.
 
-Ne pas considérer cette branche comme prête pour la production. Aucun domaine ni trafic du site Sites n'a été basculé.
+## Travail de code restant
+1. Passer des scripts Vinext/Cloudflare à un build Next.js pris en charge par Vercel.
+2. Remplacer `cloudflare:workers` et les requêtes D1 par Neon Postgres ; adapter le schéma SQLite et les migrations dans `drizzle/` à PostgreSQL, préserver les opérations atomiques.
+3. Remplacer R2 par Vercel Blob privé. Garder les contrôles de type et taille, le contrôle du propriétaire avant tout téléchargement et la suppression d'un fichier si l'écriture SQL échoue.
+4. Remplacer les en-têtes et routes de connexion Sites par Clerk. Mettre à jour les liens et libellés « Continuer avec ChatGPT » et protéger les routes du compte, de dépôt et d'administration.
+5. Installer les trois ressources dans le projet Vercel, récupérer les variables, tester le build et les parcours publics/connectés, puis déployer d'abord une prévisualisation.
 
-Références : https://vercel.com/docs/git/vercel-for-github et https://vercel.com/docs/frameworks/full-stack/nextjs
+Le dépôt actuel ne doit pas être déployé tel quel sur Vercel : ses API et sa connexion dépendent de Sites. Ne pas basculer le domaine ni fusionner la PR avant la validation fonctionnelle.
+
+Références : https://vercel.com/docs/git/vercel-for-github · https://vercel.com/docs/storage · https://clerk.com/docs/deployments/vercel
