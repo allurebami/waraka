@@ -6,13 +6,13 @@ La branche `migration-vercel` prépare Next.js sur Vercel avec Firebase Authenti
 
 - Le projet Firebase `waraka-a2e59` est sur Spark (0 $/mois).
 - L'application Web « Waraka Web » est enregistrée et la méthode Authentication « Adresse e-mail/Mot de passe » est activée.
-- Firestore attend le choix de sa région définitive et n'a pas encore été créé. La région doit être décidée par le propriétaire avant la création.
+- Firestore Standard `(default)` est créé à Paris (`europe-west9`) en mode production, avec refus des lectures et écritures directes depuis les clients.
 - La configuration serveur Vercel, la liaison du magasin Blob et les essais réels restent à faire. Aucun projet Waraka n'a été déployé sur Vercel.
 
 ## Firebase sans facturation
 
-1. Créer ou choisir un projet Firebase sur le forfait **Spark**, sans lier de compte de facturation. Enregistrer une application Web. Activer Authentication > Email/Password et ajouter le domaine Vercel de WARAKA aux domaines autorisés. Les comptes doivent vérifier leur courriel avant d'utiliser leur espace.
-2. Créer l'unique base Cloud Firestore gratuite du projet en mode sécurisé. Appliquer `firebase/firestore.rules` qui interdit les lectures directes depuis le navigateur. Toutes les lectures et écritures WARAKA passent par l'API Next.js qui vérifie les jetons Firebase et les droits d'accès.
+1. Garder le projet sur **Spark**, sans lier de compte de facturation. Le projet, l'application Web et Authentication > Email/Password sont déjà configurés. Ajouter le futur domaine Vercel de WARAKA aux domaines autorisés. Les comptes doivent vérifier leur courriel avant d'utiliser leur espace.
+2. La base Cloud Firestore gratuite est créée en mode production. Les règles initiales refusent déjà les accès directs et correspondent à `firebase/firestore.rules`. Toutes les lectures et écritures WARAKA passent par l'API Next.js qui vérifie les jetons Firebase et les droits d'accès.
 3. Dans Paramètres du projet > Comptes de service, créer une clé de compte de service pour le serveur. Copier ses champs uniquement dans les variables chiffrées de Vercel. Ne jamais publier le JSON ou l'envoyer dans une conversation.
 
 Le forfait Spark n'exige aucun moyen de paiement. Quand le quota gratuit est épuisé, le service concerné devient indisponible jusqu'à la remise à zéro du quota ; ne pas activer Blaze. Cloud Storage for Firebase n'est pas utilisé, car la création de nouveaux buckets exige Blaze.
