@@ -14,6 +14,8 @@ Le forfait Spark n'exige aucun moyen de paiement. Quand le quota gratuit est ép
 
 Relier le magasin privé `waraka-documents` déjà créé au futur projet Vercel afin d'injecter `BLOB_READ_WRITE_TOKEN`. Conserver l'espace Vercel en forfait Hobby. Vercel Blob est gratuit sous ses limites Hobby et bloque l'accès au stockage si les limites sont dépassées, sans facturer le dépassement. Les documents restent accessibles uniquement par l'API après contrôle de leur propriétaire ou d'un administrateur.
 
+**Restriction du forfait Hobby :** Vercel le réserve à un usage personnel non commercial. Avant une ouverture publique de WARAKA, confirmer que le projet répond à cette condition. Si WARAKA est une activité commerciale, ne pas le publier sur Hobby ; choisir une solution d'hébergement adaptée sans activer de facturation à l'insu du propriétaire.
+
 Ajouter les variables de `.env.example` dans les environnements Preview et Production. Les quatre variables `NEXT_PUBLIC_` viennent de la configuration de l'application Web Firebase ; la clé API côté navigateur est publique. `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL` et `FIREBASE_PRIVATE_KEY` viennent du compte de service. La clé privée peut contenir des sauts de ligne `\\n`. `WARAKA_ADMIN_EMAILS` contient les adresses vérifiées habilitées, séparées par des virgules. Isoler idéalement Preview et Production avec des projets Firebase distincts.
 
 Importer `allurebami/waraka` dans Vercel après avoir placé la branche de migration sur la branche de déploiement. Le dépôt n'est pas encore déployé sur Vercel. La base Sites D1 était vide lors de l'audit : aucune donnée utilisateur n'était alors à transférer.
