@@ -1,37 +1,6 @@
 const WHATSAPP_NUMBER = "237657806397";
 
-const products = [
-  {
-    id: "preparation-botanique",
-    name: "Préparation traditionnelle aux plantes",
-    category: "preparation",
-    categoryLabel: "Préparation",
-    description: "Exemple de fiche. La composition et l’origine restent à confirmer par le responsable.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDBcSAtL5qPRge83qgnKT8G42yOqYZO6fuNUlSowrR9Czyu8rHj0VOyzfsOo3RZ_Qx_sYuNY4KSF2aMsXuVtmZkSkksOKRsMkXVq1yjACweVQi51SKVpEgrXlFl8E3TTNfrtVbp8yFI5FiaFjlHFWOYevCNBwATWGHStnD7xyYwzzu8oGRZexLXh9G9_p_hms0ombicOg6S6y7WMfl6h9-neQ5HJ_BSDeltHlLUUU7s1NwQGkhpks0",
-    imageAlt: "Composition botanique de démonstration sur fond clair",
-    details: "Cette fiche illustre la présentation d’un produit. La composition, le fabricant, les documents et les précautions devront être fournis puis examinés avant publication réelle.",
-  },
-  {
-    id: "huile-vegetale",
-    name: "Huile végétale — exemple de fiche",
-    category: "huile",
-    categoryLabel: "Huile végétale",
-    description: "Contenu de démonstration. Aucune propriété thérapeutique n’est attribuée à ce produit.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDuDK2ahAc-Zvi5dw6JJQrdKA5hJ8M84lQLzu0AdzpJU3ELjsMQXVNftmjmBsF4jQxNhF9AorrHc9K3FCXkmlE_gvoG8gvd12qr-0Z-I5KTbzQd0VaJ_5MKNWibKZC0M-T6USeI7GBPqK_nfkFZvAgeO2BcMCb_q2fJOct8b4tQMBpOGBX5GJPU6aWwJOFCKzvCWGNz5G0a7IgiVhmsWOOcxMbYWz77DrUkOd0APKMmerd3DqgC7LI",
-    imageAlt: "Feuille botanique en gros plan pour une fiche de démonstration",
-    details: "Une fiche publiée devra distinguer les informations communiquées par le responsable des documents effectivement consultés par Waraka.",
-  },
-  {
-    id: "produit-botanique",
-    name: "Produit botanique documenté",
-    category: "plante",
-    categoryLabel: "Produit botanique",
-    description: "Exemple visuel de catalogue. Les données réelles seront ajoutées après vérification.",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB-y1_WUdZ50ZtalXgduigZi9GDLmPO6x7iDcLzX2T_c5knXTmQiIevfU7EnWk5t3sfVFfOUx5Ym8GeivQnD271eX1sb_ItbcqdX0zDryKh1R5nWK_WfYaq2K0TxQYqNvoztBplQK8PpGod7xzCq3zjZdaKolZ0RScd2rVf_er29fWSEkewFTqpYbuSc6yNVzql4lOo7nuMCKnO7jciABOrkFI7uwmdcHQA-hoVGQA_joNpZRZyFhM",
-    imageAlt: "Écorce et feuilles présentées comme spécimen botanique",
-    details: "Le nom botanique, l’origine, le responsable, la composition et les références documentaires sont des champs à compléter pour chaque produit réel.",
-  },
-];
+const products = window.WARAKA_PRODUCTS;
 
 const practitioners = [
   {
