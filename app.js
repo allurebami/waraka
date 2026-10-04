@@ -8,6 +8,8 @@ const products = [
     price: "A partir de 35 000 FCFA",
     description: "Mini buffet, boissons, amuse-bouches et option gateau selon le besoin.",
     status: "Disponible",
+    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=80",
+    imageAlt: "Buffet prepare pour une celebration",
   },
   {
     title: "Gateau personnalise",
@@ -16,6 +18,8 @@ const products = [
     price: "A partir de 12 000 FCFA",
     description: "Gateau pour anniversaire, ceremonie, entreprise ou surprise familiale.",
     status: "Sur commande",
+    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80",
+    imageAlt: "Gateau d'anniversaire decore",
   },
   {
     title: "Plateaux repas entreprise",
@@ -24,6 +28,8 @@ const products = [
     price: "A partir de 2 500 FCFA / personne",
     description: "Formule pratique pour reunions, formations, seminaires et dejeuners professionnels.",
     status: "Disponible",
+    image: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80",
+    imageAlt: "Repas compose de legumes frais et d'accompagnements",
   },
   {
     title: "Jus naturels assortis",
@@ -32,6 +38,8 @@ const products = [
     price: "A partir de 1 000 FCFA / bouteille",
     description: "Bissap, gingembre, cocktail, baobab et jus de fruits selon disponibilite.",
     status: "Disponible",
+    image: "https://buyam.co/storage/products/medium_38a76cf8-8ec5-4b93-ac3e-e90fc944fa79.png",
+    imageAlt: "Bouteille de jus naturel de bissap",
   },
   {
     title: "Buffet traditionnel",
@@ -40,6 +48,8 @@ const products = [
     price: "Sur devis",
     description: "Selection de plats camerounais pour receptions, mariages et ceremonies.",
     status: "Traiteur requis",
+    image: "https://camerounactuel.com/wp-content/uploads/2024/05/Ndole-1_jpg2.jpeg",
+    imageAlt: "Plat camerounais de ndole servi avec des accompagnements",
   },
   {
     title: "Pack petit dejeuner",
@@ -48,6 +58,8 @@ const products = [
     price: "A partir de 1 500 FCFA / personne",
     description: "Viennoiseries, boisson chaude, jus et accompagnements pour equipe ou evenement.",
     status: "Sur commande",
+    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80",
+    imageAlt: "Pain et viennoiseries pour un petit-dejeuner",
   },
 ];
 
@@ -58,6 +70,8 @@ const caterers = [
     zone: "Douala",
     level: "Standard",
     verified: true,
+    image: "https://camerounactuel.com/wp-content/uploads/2024/05/Ndole-1_jpg2.jpeg",
+    imageAlt: "Specialite camerounaise preparee par Maison Saveurs",
   },
   {
     name: "Deli Cake Studio",
@@ -65,6 +79,8 @@ const caterers = [
     zone: "Douala / Bonamoussadi",
     level: "Premium",
     verified: true,
+    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80",
+    imageAlt: "Gateau de patisserie personnalise",
   },
   {
     name: "Event Food Pro",
@@ -72,6 +88,8 @@ const caterers = [
     zone: "Douala / Akwa",
     level: "Premium",
     verified: true,
+    image: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=900&q=80",
+    imageAlt: "Equipe de traiteur preparant un buffet evenementiel",
   },
 ];
 
@@ -134,6 +152,7 @@ function renderProducts(category = "all", budget = "all", text = "") {
     .map(
       (product) => `
         <article class="product-card">
+          <img class="card-image" src="${product.image}" alt="${product.imageAlt}" loading="lazy" />
           <div>
             <div class="tag-row">
               <span class="tag">${categoryLabels[product.category]}</span>
@@ -158,6 +177,7 @@ function renderCaterers() {
     .map(
       (caterer) => `
         <article class="caterer-card">
+          <img class="card-image" src="${caterer.image}" alt="${caterer.imageAlt}" loading="lazy" />
           <div>
             <div class="tag-row">
               <span class="tag green">Certifie</span>
