@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Waraka connecte les clients aux produits alimentaires et aux traiteurs certifies pour les evenements, receptions et commandes speciales."
+    />
+    <title>Waraka | Produits et traiteurs certifies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#accueil" aria-label="Accueil Waraka">
+        <span class="brand-mark">W</span>
+        <span>Waraka</span>
+      </a>
+      <nav class="main-nav" aria-label="Navigation principale">
+        <a href="#produits">Produits</a>
+        <a href="#traiteurs">Traiteurs</a>
+        <a href="#devis">Devis</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="accueil">
+        <div class="hero-content">
+          <p class="eyebrow">PRODUITS · TRAITEURS · EVENEMENTS</p>
+          <h1>La plateforme qui connecte les clients aux bons produits et aux traiteurs certifies.</h1>
+          <p class="hero-text">
+            Trouve rapidement des produits alimentaires, compare les traiteurs disponibles et demande un devis
+            pour un anniversaire, une reunion, un mariage, un buffet ou une commande speciale.
+          </p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#produits">Explorer les produits</a>
+            <a class="btn secondary" id="heroWhatsapp" href="#" target="_blank" rel="noreferrer">
+              Commander sur WhatsApp
+            </a>
+          </div>
+
+          <form class="quick-search" id="quickSearch">
+            <h2>Recherche rapide</h2>
+            <div class="field-grid">
+              <label>
+                Categorie
+                <select id="categoryFilter">
+                  <option value="all">Toutes les categories</option>
+                  <option value="repas">Repas prepares</option>
+                  <option value="patisserie">Patisserie</option>
+                  <option value="boisson">Boissons</option>
+                  <option value="pack">Packs evenementiels</option>
+                </select>
+              </label>
+              <label>
+                Budget
+                <select id="budgetFilter">
+                  <option value="all">Tous les budgets</option>
+                  <option value="eco">Economique</option>
+                  <option value="standard">Standard</option>
+                  <option value="premium">Premium</option>
+                </select>
+              </label>
+              <label>
+                Recherche
+                <input id="textFilter" type="search" placeholder="Ex: gateau, buffet, jus..." />
+              </label>
+            </div>
+            <button type="submit">Voir les resultats</button>
+          </form>
+        </div>
+
+        <aside class="hero-panel" aria-label="Indicateurs de lancement">
+          <div>
+            <strong>3</strong>
+            <span>modules principaux</span>
+          </div>
+          <div>
+            <strong>12</strong>
+            <span>offres de depart</span>
+          </div>
+          <div>
+            <strong>100%</strong>
+            <span>contact WhatsApp</span>
+          </div>
+          <div>
+            <strong>V0</strong>
+            <span>prete pour Vercel</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section" id="produits">
+        <div class="section-head">
+          <p class="eyebrow">PRODUITS</p>
+          <h2>Produits alimentaires et packs prets a commander.</h2>
+          <p>
+            La V0 met en avant les produits les plus simples a vendre: plats, gateaux, boissons, packs et
+            formules pour petits evenements.
+          </p>
+        </div>
+
+        <div class="toolbar" aria-label="Filtres produits">
+          <button class="chip active" data-category="all">Tout</button>
+          <button class="chip" data-category="repas">Repas</button>
+          <button class="chip" data-category="patisserie">Patisserie</button>
+          <button class="chip" data-category="boisson">Boissons</button>
+          <button class="chip" data-category="pack">Packs</button>
+        </div>
+
+        <div class="result-row">
+          <h3 id="resultTitle">Tous les produits</h3>
+          <span id="resultCount">0 offre</span>
+        </div>
+        <div class="card-grid" id="productList"></div>
+      </section>
+
+      <section class="section alt" id="traiteurs">
+        <div class="section-head">
+          <p class="eyebrow">TRAITEURS CERTIFIES</p>
+          <h2>Des prestataires visibles, classes et faciles a contacter.</h2>
+          <p>
+            Chaque traiteur peut avoir sa fiche: specialite, zone, niveau de prix, disponibilite et contact
+            WhatsApp. La certification rassure le client avant la commande.
+          </p>
+        </div>
+        <div class="caterer-grid" id="catererList"></div>
+      </section>
+
+      <section class="section" id="devis">
+        <div class="section-head">
+          <p class="eyebrow">DEVIS</p>
+          <h2>Une demande simple pour transformer le visiteur en client.</h2>
+          <p>
+            Le client choisit son besoin, precise le nombre de personnes et envoie directement la demande sur
+            WhatsApp.
+          </p>
+        </div>
+
+        <form class="quote-form" id="quoteForm">
+          <label>
+            Type de besoin
+            <select id="quoteNeed" required>
+              <option value="">Choisir un besoin</option>
+              <option>Commande de produits</option>
+              <option>Traiteur pour evenement</option>
+              <option>Pack anniversaire</option>
+              <option>Buffet professionnel</option>
+            </select>
+          </label>
+          <label>
+            Nombre de personnes
+            <input id="quotePeople" type="number" min="1" placeholder="Ex: 30" required />
+          </label>
+          <label>
+            Date souhaitee
+            <input id="quoteDate" type="date" />
+          </label>
+          <label class="full">
+            Details
+            <textarea id="quoteDetails" rows="4" placeholder="Precise le lieu, le budget ou les plats souhaites."></textarea>
+          </label>
+          <button class="btn primary full" type="submit">Envoyer la demande sur WhatsApp</button>
+        </form>
+      </section>
+
+      <section class="section contact-section" id="contact">
+        <div>
+          <p class="eyebrow">CONTACT</p>
+          <h2>Ajouter un produit ou devenir traiteur certifie.</h2>
+          <p>
+            Waraka peut commencer avec validation manuelle: le prestataire envoie ses informations, ses photos,
+            sa zone et ses tarifs avant publication.
+          </p>
+        </div>
+        <a class="btn light" id="contactWhatsapp" href="#" target="_blank" rel="noreferrer">
+          Contacter Waraka
+        </a>
+      </section>
+    </main>
+
+    <footer>
+      <span>Waraka · V0 HTML CSS JavaScript</span>
+      <a href="#accueil">Retour en haut</a>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
