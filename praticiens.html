@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Consultez le répertoire des praticiens traditionnels référencés sur WARAKA." />
+    <meta name="theme-color" content="#174b38" />
+    <title>Praticiens | WARAKA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html#accueil" aria-label="WARAKA, accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
+      <nav class="main-nav" aria-label="Navigation principale">
+        <a href="produits.html">Produits</a>
+        <a class="current-nav" href="praticiens.html" aria-current="page">Praticiens</a>
+        <a href="index.html#confiance">Notre approche</a>
+      </nav>
+      <a class="header-link" href="index.html#contact">Nous contacter</a>
+    </header>
+
+    <main>
+      <section class="catalog-hero practitioner-hero">
+        <div class="catalog-hero-inner">
+          <a class="back-link" href="index.html#accueil">← Retour à l’accueil</a>
+          <p class="eyebrow light-eyebrow">RÉPERTOIRE WARAKA</p>
+          <h1>Praticiens</h1>
+          <p>Consultez les profils et les informations communiquées à WARAKA. Chaque fiche précise son statut documentaire.</p>
+          <span class="catalog-demo-note">Les profils visibles ici sont fictifs et servent à présenter la plateforme.</span>
+        </div>
+      </section>
+
+      <section class="catalog-tools practitioner-tools" aria-label="Recherche et filtres des praticiens">
+        <div class="search-controls" role="search">
+          <label class="visually-hidden" for="practitionerSearch">Rechercher un praticien, une spécialité ou une ville</label>
+          <input id="practitionerSearch" type="search" placeholder="Nom, spécialité ou ville..." autocomplete="off" />
+          <button class="button button-primary" id="practitionerSearchButton" type="button">Rechercher</button>
+        </div>
+        <label class="city-filter city-filter-wide">
+          <span>Filtrer par ville</span>
+          <select id="practitionerCity" aria-label="Filtrer les praticiens par ville">
+            <option value="all">Toutes les villes</option>
+            <option value="Douala">Douala</option>
+            <option value="Yaoundé">Yaoundé</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="section catalog-section" aria-labelledby="practitionerTitle">
+        <div class="section-heading">
+          <div><p class="eyebrow">RÉPERTOIRE</p><h2 id="practitionerTitle">Profils de praticiens</h2><p>Un profil publié ne constitue pas à lui seul une certification ou une recommandation médicale.</p></div>
+          <span class="section-count" id="practitionerCount" aria-live="polite"></span>
+        </div>
+        <div class="card-grid practitioner-grid" id="practitionerCatalog" aria-live="polite"></div>
+        <p class="empty-state" id="practitionerCatalogEmpty" hidden>Aucun profil ne correspond à cette recherche.</p>
+      </section>
+
+      <section class="catalog-bottom">
+        <div><p class="eyebrow">TRANSPARENCE</p><h2>Informations déclarées et éléments examinés.</h2><p>Les profils affichés sont des exemples fictifs. Une publication réelle devra préciser les informations communiquées et les vérifications réalisées par WARAKA.</p></div>
+        <a class="button button-primary" href="produits.html">Explorer les produits</a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="brand footer-brand" href="index.html#accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
+      <p>Les contenus de cette version sont des exemples de démonstration, pas des recommandations de santé.</p>
+      <a href="index.html#accueil">Retour à l’accueil</a>
+    </footer>
+
+    <dialog class="detail-dialog" id="practitionerDialog" aria-labelledby="dialogTitle">
+      <button class="dialog-close" id="practitionerDialogClose" type="button" aria-label="Fermer le profil">×</button>
+      <div id="practitionerDialogContent"></div>
+    </dialog>
+    <script src="practitioners-data.js"></script>
+    <script src="praticiens.js"></script>
+  </body>
+</html>
