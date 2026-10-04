@@ -24,7 +24,7 @@
         <span>WARAKA</span>
       </a>
       <nav class="main-nav" aria-label="Navigation principale">
-        <a href="#produits">Produits</a>
+        <a href="produits.html">Produits</a>
         <a href="#praticiens">Praticiens</a>
         <a href="#confiance">Notre approche</a>
       </nav>
@@ -48,7 +48,7 @@
             Une plateforme pour consulter des informations claires et découvrir les acteurs, avec une distinction visible entre données déclarées et éléments examinés.
           </p>
           <div class="hero-actions">
-            <a class="button button-light" href="#produits">Explorer les produits</a>
+            <a class="button button-light" href="produits.html">Explorer les produits</a>
             <a class="button button-outline-light" href="#praticiens">Trouver un praticien</a>
           </div>
         </div>
@@ -78,7 +78,7 @@
             <h2>Produits traditionnels</h2>
             <p>Consultez les fiches et leur statut documentaire. Les exemples affichés servent à présenter la plateforme.</p>
           </div>
-          <span class="section-count" id="productCount">0 fiche</span>
+          <div class="heading-actions"><span class="section-count" id="productCount">0 fiche</span><a class="section-count view-all-link" href="produits.html">Voir tous les produits <span aria-hidden="true">→</span></a></div>
         </div>
         <div class="filter-row" aria-label="Filtrer les produits">
           <button class="filter-chip is-active" type="button" aria-pressed="true" data-product-category="all">Tout</button>
@@ -144,6 +144,7 @@
       <div id="dialogContent"></div>
     </dialog>
 
+    <script src="products-data.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
