@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Explorez le répertoire des produits traditionnels documentés sur WARAKA." />
+    <meta name="theme-color" content="#174b38" />
+    <title>Produits traditionnels | WARAKA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html#accueil" aria-label="WARAKA, accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
+      <nav class="main-nav" aria-label="Navigation principale">
+        <a class="current-nav" href="produits.html" aria-current="page">Produits</a>
+        <a href="index.html#praticiens">Praticiens</a>
+        <a href="index.html#confiance">Notre approche</a>
+      </nav>
+      <a class="header-link" href="index.html#contact">Nous contacter</a>
+    </header>
+
+    <main>
+      <section class="catalog-hero">
+        <div class="catalog-hero-inner">
+          <a class="back-link" href="index.html#accueil">← Retour à l’accueil</a>
+          <p class="eyebrow light-eyebrow">RÉPERTOIRE WARAKA</p>
+          <h1>Produits traditionnels</h1>
+          <p>Explorez les fiches documentaires et consultez le statut des informations présentées.</p>
+          <span class="catalog-demo-note">Les fiches visibles ici sont des exemples fictifs de démonstration.</span>
+        </div>
+      </section>
+
+      <section class="catalog-tools" aria-label="Recherche et filtres des produits">
+        <div class="search-controls" role="search">
+          <label class="visually-hidden" for="productSearch">Rechercher un produit</label>
+          <input id="productSearch" type="search" placeholder="Rechercher un produit ou une catégorie..." autocomplete="off" />
+          <button class="button button-primary" id="catalogSearchButton" type="button">Rechercher</button>
+        </div>
+        <div class="filter-row" aria-label="Filtrer les produits">
+          <button class="filter-chip is-active" type="button" aria-pressed="true" data-product-category="all">Tout</button>
+          <button class="filter-chip" type="button" aria-pressed="false" data-product-category="preparation">Préparations</button>
+          <button class="filter-chip" type="button" aria-pressed="false" data-product-category="huile">Huiles</button>
+          <button class="filter-chip" type="button" aria-pressed="false" data-product-category="plante">Produits botaniques</button>
+        </div>
+      </section>
+
+      <section class="section catalog-section" aria-labelledby="catalogTitle">
+        <div class="section-heading">
+          <div><p class="eyebrow">CATALOGUE</p><h2 id="catalogTitle">Fiches produits</h2><p>Les informations affichées ne constituent ni un avis médical ni une recommandation d’utilisation.</p></div>
+          <span class="section-count" id="catalogCount" aria-live="polite"></span>
+        </div>
+        <div class="card-grid" id="catalogList" aria-live="polite"></div>
+        <p class="empty-state" id="catalogEmpty" hidden>Aucun produit ne correspond à cette recherche.</p>
+      </section>
+
+      <section class="catalog-bottom">
+        <div><p class="eyebrow">INFORMATION</p><h2>Une fiche n’est pas une certification.</h2><p>WARAKA distingue les informations communiquées des éléments effectivement examinés. Aucun produit de démonstration ne doit être interprété comme un conseil de santé.</p></div>
+        <a class="button button-primary" href="index.html#praticiens">Découvrir les praticiens</a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="brand footer-brand" href="index.html#accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
+      <p>Les contenus de cette version sont des exemples de démonstration, pas des recommandations de santé.</p>
+      <a href="index.html#accueil">Retour à l’accueil</a>
+    </footer>
+
+    <dialog class="detail-dialog" id="productDialog" aria-labelledby="dialogTitle">
+      <button class="dialog-close" id="dialogClose" type="button" aria-label="Fermer la fiche">×</button>
+      <div id="dialogContent"></div>
+    </dialog>
+    <script src="products-data.js"></script>
+    <script src="produits.js"></script>
+  </body>
+</html>
