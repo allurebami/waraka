@@ -4,10 +4,11 @@ WARAKA est une plateforme statique en HTML, CSS et JavaScript consacrée aux pro
 
 ## Pages
 
-- `index.html` : accueil, aperçu des produits et répertoire des praticiens.
-- `produits.html` : catalogue complet des produits, recherche, filtres par catégorie et fiches détaillées.
+- `index.html` : accueil et aperçu des deux répertoires.
+- `produits.html` : catalogue des produits, recherche, filtres et fiches détaillées.
+- `praticiens.html` : répertoire des praticiens, recherche par profil ou ville et fiches détaillées.
 
-Les deux pages partagent leurs données produits dans `products-data.js`. Les exemples visibles sont fictifs et servent à présenter l’interface. La plateforme ne collecte aucune candidature, ne publie pas de certification et ne formule pas de promesse de guérison. Le contact général passe par WhatsApp.
+Les données produits et praticiens sont partagées avec les pages dédiées. Les profils et produits visibles sont des exemples fictifs de démonstration. La plateforme ne collecte aucune candidature, ne publie pas de certification et ne formule pas de promesse de guérison. Le contact général passe par WhatsApp.
 
 ## Lancer en local
 
