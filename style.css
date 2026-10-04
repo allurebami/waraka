@@ -959,3 +959,37 @@ h1 {
     justify-items: start;
   }
 }
+
+.practitioner-hero {
+  background-image: linear-gradient(115deg, rgba(14, 52, 36, 0.96), rgba(23, 75, 56, 0.82)), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBMFzpLabMIhLhLmGpuiV6cXOMYza5YnVH1Pn-piMF89fkTtflnr0J42yVRsZUfBcRebfP-DnbEwIS_pdHK65A7GdJMU8MnPlicoU3NIzJ7uIqV_unlLUIy9zRbwhMgu5CtT1PIukhlWyAK62vZypY_PGFH6vhomwmCVVdhAfL3RrZVh4x11O8nWkyxU9sJmCsnf9QraMsjCJyvUPegcA3vPLTfRvDedYJspbIDYrI0wjdeWWR1bPs") center 35% / cover;
+}
+
+.practitioner-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.35fr);
+  align-items: end;
+  gap: 16px;
+}
+
+.practitioner-tools > .search-controls {
+  margin-bottom: 18px;
+}
+
+.city-filter-wide {
+  margin: 0 auto 18px;
+}
+
+.practitioner-grid .directory-card {
+  box-shadow: 0 8px 24px rgba(18, 54, 36, 0.04);
+}
+
+@media (max-width: 560px) {
+  .practitioner-tools {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .city-filter-wide {
+    margin-bottom: 18px;
+  }
+}
