@@ -5,200 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Waraka connecte les clients aux produits alimentaires et aux traiteurs certifies pour les evenements, receptions et commandes speciales."
+      content="WARAKA documente des produits traditionnels et aide a trouver des praticiens referencies au Cameroun."
     />
-    <title>Waraka | Produits et traiteurs certifies</title>
+    <meta name="theme-color" content="#174b38" />
+    <title>WARAKA | Produits traditionnels et praticiens</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="#accueil" aria-label="Accueil Waraka">
-        <span class="brand-mark">W</span>
-        <span>Waraka</span>
+      <a class="brand" href="#accueil" aria-label="WARAKA, accueil">
+        <span class="brand-mark" aria-hidden="true">W</span>
+        <span>WARAKA</span>
       </a>
       <nav class="main-nav" aria-label="Navigation principale">
         <a href="#produits">Produits</a>
-        <a href="#traiteurs">Traiteurs</a>
-        <a href="#devis">Devis</a>
-        <a href="#contact">Contact</a>
+        <a href="#praticiens">Praticiens</a>
+        <a href="#confiance">Notre approche</a>
       </nav>
+      <a class="header-link" href="#contact">Nous contacter</a>
     </header>
 
     <main>
       <section class="hero" id="accueil">
+        <img
+          class="hero-image"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFx11PHDigEf0ZvgXiSL3JN8FRo_CneeQ4lR0uUAFyLlEEgLs67Gf6Tpsd26THQsCuLR7kzJcuekLSVYjSjmRnWz56BBvPOQAt6RNtZd6cGw7y80-3r3vYvBQWW89lpaiBDY7lBIrF_K4QxNWgJQWk9Yw5GSGZlDjUFuS9JS5MbTL2OLXOn8iMXvCyhe-sMOuyo5cEShhoXY6jJfSwYboBMUly6yUPL6ja0fBjJapWHB_orHWTuuo"
+          alt="Canopée forestière camerounaise aux feuillages denses"
+          fetchpriority="high"
+        />
+        <div class="hero-shade"></div>
         <div class="hero-content">
-          <p class="eyebrow">PRODUITS · TRAITEURS · EVENEMENTS</p>
-          <h1>La plateforme qui connecte les clients aux bons produits et aux traiteurs certifies.</h1>
-          <p class="hero-text">
-            Trouve rapidement des produits alimentaires, compare les traiteurs disponibles et demande un devis
-            pour un anniversaire, une reunion, un mariage, un buffet ou une commande speciale.
+          <p class="eyebrow light-eyebrow">SAVOIRS TRADITIONNELS · CAMEROUN</p>
+          <h1>WARAKA</h1>
+          <p class="hero-lead">Produits traditionnels documentés. Praticiens référencés.</p>
+          <p class="hero-copy">
+            Une plateforme pour consulter des informations claires et découvrir les acteurs, avec une distinction visible entre données déclarées et éléments examinés.
           </p>
           <div class="hero-actions">
-            <a class="btn primary" href="#produits">Explorer les produits</a>
-            <a class="btn secondary" id="heroWhatsapp" href="#" target="_blank" rel="noreferrer">
-              Commander sur WhatsApp
-            </a>
+            <a class="button button-light" href="#produits">Explorer les produits</a>
+            <a class="button button-outline-light" href="#praticiens">Trouver un praticien</a>
           </div>
-
-          <form class="quick-search" id="quickSearch">
-            <h2>Recherche rapide</h2>
-            <div class="field-grid">
-              <label>
-                Categorie
-                <select id="categoryFilter">
-                  <option value="all">Toutes les categories</option>
-                  <option value="repas">Repas prepares</option>
-                  <option value="patisserie">Patisserie</option>
-                  <option value="boisson">Boissons</option>
-                  <option value="pack">Packs evenementiels</option>
-                </select>
-              </label>
-              <label>
-                Budget
-                <select id="budgetFilter">
-                  <option value="all">Tous les budgets</option>
-                  <option value="eco">Economique</option>
-                  <option value="standard">Standard</option>
-                  <option value="premium">Premium</option>
-                </select>
-              </label>
-              <label>
-                Recherche
-                <input id="textFilter" type="search" placeholder="Ex: gateau, buffet, jus..." />
-              </label>
-            </div>
-            <button type="submit">Voir les resultats</button>
-          </form>
         </div>
+      </section>
 
-        <figure class="hero-photo">
-          <img
-            src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=85"
-            alt="Table de buffet avec plusieurs plats prets a partager"
-            fetchpriority="high"
-          />
-          <figcaption>Les bonnes saveurs, pour les moments qui comptent.</figcaption>
-        </figure>
+      <section class="search-band" aria-label="Recherche dans WARAKA">
+        <div class="search-intro">
+          <p class="eyebrow">RECHERCHE</p>
+          <h2>Que recherchez-vous ?</h2>
+        </div>
+        <div class="search-controls" role="search">
+          <label class="visually-hidden" for="globalSearch">Nom de produit, praticien, spécialité ou ville</label>
+          <input id="globalSearch" type="search" placeholder="Produit, praticien, spécialité, ville..." autocomplete="off" />
+          <button class="button button-primary" id="searchButton" type="button">Rechercher</button>
+        </div>
+      </section>
 
-        <aside class="hero-panel" aria-label="Indicateurs de lancement">
-          <div>
-            <strong>3</strong>
-            <span>modules principaux</span>
-          </div>
-          <div>
-            <strong>12</strong>
-            <span>offres de depart</span>
-          </div>
-          <div>
-            <strong>100%</strong>
-            <span>contact WhatsApp</span>
-          </div>
-          <div>
-            <strong>V0</strong>
-            <span>prete pour Vercel</span>
-          </div>
-        </aside>
+      <section class="notice-strip" id="confiance">
+        <span class="notice-mark" aria-hidden="true">i</span>
+        <p><strong>Information, pas prescription.</strong> WARAKA ne pose pas de diagnostic et ne remplace pas l’avis d’un professionnel de santé.</p>
       </section>
 
       <section class="section" id="produits">
-        <div class="section-head">
-          <p class="eyebrow">PRODUITS</p>
-          <h2>Produits alimentaires et packs prets a commander.</h2>
-          <p>
-            La V0 met en avant les produits les plus simples a vendre: plats, gateaux, boissons, packs et
-            formules pour petits evenements.
-          </p>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">RÉPERTOIRE 01</p>
+            <h2>Produits traditionnels</h2>
+            <p>Consultez les fiches et leur statut documentaire. Les exemples affichés servent à présenter la plateforme.</p>
+          </div>
+          <span class="section-count" id="productCount">0 fiche</span>
         </div>
-
-        <div class="toolbar" aria-label="Filtres produits">
-          <button class="chip active" data-category="all">Tout</button>
-          <button class="chip" data-category="repas">Repas</button>
-          <button class="chip" data-category="patisserie">Patisserie</button>
-          <button class="chip" data-category="boisson">Boissons</button>
-          <button class="chip" data-category="pack">Packs</button>
+        <div class="filter-row" aria-label="Filtrer les produits">
+          <button class="filter-chip is-active" type="button" aria-pressed="true" data-product-category="all">Tout</button>
+          <button class="filter-chip" type="button" aria-pressed="false" data-product-category="preparation">Préparations</button>
+          <button class="filter-chip" type="button" aria-pressed="false" data-product-category="huile">Huiles</button>
+          <button class="filter-chip" type="button" aria-pressed="false" data-product-category="plante">Produits botaniques</button>
         </div>
-
-        <div class="result-row">
-          <h3 id="resultTitle">Tous les produits</h3>
-          <span id="resultCount">0 offre</span>
-        </div>
-        <div class="card-grid" id="productList"></div>
+        <div class="card-grid" id="productList" aria-live="polite"></div>
+        <p class="empty-state" id="productEmpty" hidden>Aucun produit ne correspond à cette recherche.</p>
       </section>
 
-      <section class="section alt" id="traiteurs">
-        <div class="section-head">
-          <p class="eyebrow">TRAITEURS CERTIFIES</p>
-          <h2>Des prestataires visibles, classes et faciles a contacter.</h2>
-          <p>
-            Chaque traiteur peut avoir sa fiche: specialite, zone, niveau de prix, disponibilite et contact
-            WhatsApp. La certification rassure le client avant la commande.
-          </p>
-        </div>
-        <div class="caterer-grid" id="catererList"></div>
-      </section>
-
-      <section class="section" id="devis">
-        <div class="section-head">
-          <p class="eyebrow">DEVIS</p>
-          <h2>Une demande simple pour transformer le visiteur en client.</h2>
-          <p>
-            Le client choisit son besoin, precise le nombre de personnes et envoie directement la demande sur
-            WhatsApp.
-          </p>
-        </div>
-
-        <form class="quote-form" id="quoteForm">
-          <label>
-            Type de besoin
-            <select id="quoteNeed" required>
-              <option value="">Choisir un besoin</option>
-              <option>Commande de produits</option>
-              <option>Traiteur pour evenement</option>
-              <option>Pack anniversaire</option>
-              <option>Buffet professionnel</option>
+      <section class="section practitioners-section" id="praticiens">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">RÉPERTOIRE 02</p>
+            <h2>Praticiens</h2>
+            <p>Découvrez les profils et les informations professionnelles communiquées à WARAKA.</p>
+          </div>
+          <label class="city-filter">
+            <span>Ville</span>
+            <select id="cityFilter" aria-label="Filtrer les praticiens par ville">
+              <option value="all">Toutes les villes</option>
+              <option value="Douala">Douala</option>
+              <option value="Yaoundé">Yaoundé</option>
             </select>
           </label>
-          <label>
-            Nombre de personnes
-            <input id="quotePeople" type="number" min="1" placeholder="Ex: 30" required />
-          </label>
-          <label>
-            Date souhaitee
-            <input id="quoteDate" type="date" />
-          </label>
-          <label class="full">
-            Details
-            <textarea id="quoteDetails" rows="4" placeholder="Precise le lieu, le budget ou les plats souhaites."></textarea>
-          </label>
-          <button class="btn primary full" type="submit">Envoyer la demande sur WhatsApp</button>
-        </form>
+        </div>
+        <div class="card-grid practitioner-grid" id="practitionerList" aria-live="polite"></div>
+        <p class="empty-state" id="practitionerEmpty" hidden>Aucun praticien ne correspond à cette recherche.</p>
       </section>
 
-      <section class="section contact-section" id="contact">
-        <div>
-          <p class="eyebrow">CONTACT</p>
-          <h2>Ajouter un produit ou devenir traiteur certifie.</h2>
-          <p>
-            Waraka peut commencer avec validation manuelle: le prestataire envoie ses informations, ses photos,
-            sa zone et ses tarifs avant publication.
-          </p>
+      <section class="trust-section">
+        <div class="trust-copy">
+          <p class="eyebrow light-eyebrow">TRANSPARENCE</p>
+          <h2>Un statut précis pour chaque information.</h2>
+          <p>Une fiche publiée n’est pas automatiquement une certification. WARAKA indique ce qui a été déclaré et ce qui a effectivement été examiné.</p>
         </div>
-        <a class="btn light" id="contactWhatsapp" href="#" target="_blank" rel="noreferrer">
-          Contacter Waraka
-        </a>
+        <div class="trust-items">
+          <div><span class="status-dot declared"></span><span><strong>Information déclarée</strong><small>Communiquée par le responsable ou le praticien.</small></span></div>
+          <div><span class="status-dot reviewed"></span><span><strong>Élément examiné</strong><small>Contrôle limité aux éléments précisés sur la fiche.</small></span></div>
+          <div><span class="status-dot demo"></span><span><strong>Exemple de démonstration</strong><small>Contenu fictif utilisé pour illustrer l’interface.</small></span></div>
+        </div>
+      </section>
+
+      <section class="contact-section" id="contact">
+        <div>
+          <p class="eyebrow">CONTACT WARAKA</p>
+          <h2>Une question sur les informations publiées ?</h2>
+          <p>Écrivez à l’équipe Waraka pour demander un renseignement ou signaler une information à corriger.</p>
+        </div>
+        <a class="button button-primary" id="contactWhatsapp" href="#" target="_blank" rel="noreferrer">Contacter Waraka sur WhatsApp</a>
       </section>
     </main>
 
-    <footer>
-      <span>Waraka · V0 HTML CSS JavaScript</span>
+    <footer class="site-footer">
+      <a class="brand footer-brand" href="#accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
+      <p>Les contenus de cette version sont des exemples de démonstration, pas des recommandations de santé.</p>
       <a href="#accueil">Retour en haut</a>
     </footer>
+
+    <dialog class="detail-dialog" id="detailDialog" aria-labelledby="dialogTitle">
+      <button class="dialog-close" id="dialogClose" type="button" aria-label="Fermer la fiche">×</button>
+      <div id="dialogContent"></div>
+    </dialog>
 
     <script src="app.js"></script>
   </body>
