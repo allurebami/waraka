@@ -6,7 +6,10 @@ import "./globals.css";
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   applicationName: "WARAKA",
-  icons: { icon: "/assets/favicon.svg", apple: "/assets/apple-touch-icon.png" },
+  icons: {
+    icon: { url: "/assets/waraka-symbol-v1.png", type: "image/png" },
+    apple: "/assets/waraka-symbol-v1.png",
+  },
 };
 
 export const viewport = { width: "device-width", initialScale: 1, themeColor: "#174b38" };

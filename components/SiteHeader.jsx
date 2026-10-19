@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import BrandLogo from "./BrandLogo.jsx";
 
 export default function SiteHeader() {
   const pathname = usePathname();
@@ -10,7 +11,7 @@ export default function SiteHeader() {
       <a className="skip-link" href="#main-content">Aller au contenu</a>
       <header className="site-header">
         <Link className="brand" href="/" aria-label="WARAKA, accueil">
-          <span className="brand-mark" aria-hidden="true">W</span><span>WARAKA</span>
+          <BrandLogo />
         </Link>
         <nav className="main-nav" aria-label="Navigation principale">
           <Link href="/produits" className={pathname === "/produits" ? "current-nav" : undefined} aria-current={pathname === "/produits" ? "page" : undefined}>Produits</Link>

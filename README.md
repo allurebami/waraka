@@ -68,3 +68,12 @@ Le projet existant est `waraka-bea6`, relié au dépôt `allurebami/waraka`. `ve
 La racine du projet doit être celle du dépôt. Les déploiements passent par l’intégration GitHub existante. Un éventuel réglage d’hébergement qui impose encore un ancien dossier de sortie statique doit revenir à la valeur par défaut Next.js. Conserver `WARAKA_DEMO_MODE=0` en production.
 
 Les assets de marque sont conservés dans `public/assets/`. Le partage social, les URL canoniques et le sitemap utilisent `NEXT_PUBLIC_SITE_URL`.
+
+## Identité visuelle WARAKA
+
+Le logo propre à WARAKA associe un W végétal à un livre doré : patrimoine botanique et transmission des connaissances. Le nom WARAKA accompagne le symbole dans la signature horizontale.
+
+- `public/assets/waraka-logo-v1.png` : logo horizontal sur fond transparent, utilisé dans l’en-tête et le pied de page via `components/BrandLogo.jsx`.
+- `public/assets/waraka-symbol-v1.png` : emblème seul sur fond transparent, utilisé comme icône du site et icône Apple.
+
+Les fichiers haute résolution sont servis dans les dimensions adaptées au site par le composant Image de Next.js.
