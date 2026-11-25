@@ -1,0 +1,759 @@
+From 9aa2f10e1975d4eb756bf761871a9de7b6cacc47 Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Wed, 25 Nov 2026 12:57:45 +0100
+Subject: [PATCH] =?UTF-8?q?Clarifier=20la=20disponibilit=C3=A9=20du=20r?=
+ =?UTF-8?q?=C3=A9pertoire=20et=20int=C3=A9grer=20la=20marque=20WARAKA?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ README.md                   |   4 ++++
+ app.js                      |  22 ++++++++++++++----
+ assets/apple-touch-icon.png | Bin 2418 -> 4659 bytes
+ assets/favicon.svg          |   2 +-
+ assets/waraka-logo.svg      |   1 +
+ assets/waraka-signature.svg |   1 +
+ data-service.js             |  27 ++++++++++++----------
+ index.html                  |  28 +++++++++++------------
+ praticiens.html             |  19 ++++++++--------
+ praticiens.js               |  25 ++++++++++++++++-----
+ produits.html               |  21 +++++++++---------
+ produits.js                 |  33 ++++++++++++++++++---------
+ style.css                   |  43 +++++++++++++++++-------------------
+ 13 files changed, 136 insertions(+), 90 deletions(-)
+ create mode 100644 assets/waraka-logo.svg
+ create mode 100644 assets/waraka-signature.svg
+
+diff --git a/README.md b/README.md
+index 571a5ec..8a1c4bc 100644
+--- a/README.md
++++ b/README.md
+@@ -24,3 +24,7 @@ Catégories de produits acceptées : `preparation`, `huile`, `plante`, `autre`.
+ ## Lancer en local
+ 
+ Ouvrir `index.html` dans un navigateur ou servir le dossier avec un serveur HTTP statique. Le site peut être hébergé sur Vercel ou GitHub Pages.
++
++## Diagnostiquer un catalogue indisponible
++
++Vérifier que le Project URL configuré se résout et que le projet Supabase est actif. Ensuite, vérifier la clé publique, l’application du schéma et le statut des lignes. Un projet configuré qui échoue affiche un état d’indisponibilité. Les données de démonstration s’affichent uniquement quand l’URL et la clé sont toutes deux vides.
+diff --git a/app.js b/app.js
+index 430590c..8c6d04a 100644
+--- a/app.js
++++ b/app.js
+@@ -1,6 +1,6 @@
+ const WHATSAPP_NUMBER = "237657806397";
+-let products = (window.WARAKA_PRODUCTS || []).map((product) => ({ ...product, isDemo: true }));
+-let practitioners = (window.WARAKA_PRACTITIONERS || []).map((person) => ({ ...person, isDemo: true }));
++let products = [];
++let practitioners = [];
+ const dataService = window.WARAKA_DATA;
+ const productList = document.querySelector("#productList");
+ const practitionerList = document.querySelector("#practitionerList");
+@@ -12,6 +12,8 @@ const practitionerEmpty = document.querySelector("#practitionerEmpty");
+ const dialog = document.querySelector("#detailDialog");
+ const dialogContent = document.querySelector("#dialogContent");
+ let activeCategory = "all";
++let productState = "ready";
++let practitionerState = "ready";
+ 
+ function escapeHTML(value) {
+   return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+@@ -24,7 +26,7 @@ function normalize(value) {
+ }
+ 
+ function productCard(product) {
+-  const badge = product.isDemo ? "Démonstration" : product.isFeatured ? "Mis en avant par WARAKA" : "Référencement validé";
++  const badge = product.isDemo ? "Démonstration" : product.isFeatured ? "Mis en avant par WARAKA" : "Fiche publiée";
+   return `
+     <article class="directory-card">
+       <div class="card-media">
+@@ -80,9 +82,15 @@ function render() {
+   });
+   productList.innerHTML = visibleProducts.map(productCard).join("");
+   practitionerList.innerHTML = visiblePractitioners.map(practitionerCard).join("");
+-  productCount.textContent = `${visibleProducts.length} fiche${visibleProducts.length === 1 ? "" : "s"}`;
++  productCount.textContent = productState === "ready" ? `${visibleProducts.length} fiche${visibleProducts.length === 1 ? "" : "s"}` : "";
+   productEmpty.hidden = visibleProducts.length > 0;
+   practitionerEmpty.hidden = visiblePractitioners.length > 0;
++  productEmpty.textContent = productState === "loading" ? "Chargement des produits…"
++    : productState === "error" ? "Le catalogue est momentanément indisponible."
++    : products.length ? "Aucun produit ne correspond à cette recherche." : "Aucune fiche produit n’est publiée pour le moment.";
++  practitionerEmpty.textContent = practitionerState === "loading" ? "Chargement des profils…"
++    : practitionerState === "error" ? "L’annuaire est momentanément indisponible."
++    : practitioners.length ? "Aucun praticien ne correspond à cette recherche." : "Aucun profil n’est publié pour le moment.";
+ }
+ 
+ function openDetails(type, id) {
+@@ -142,6 +150,8 @@ document.querySelector("#contactWhatsapp").href =
+ 
+ async function loadHomeCatalog() {
+   if (!dataService?.isConfigured()) {
++    products = (window.WARAKA_PRODUCTS || []).map((product) => ({ ...product, isDemo: true }));
++    practitioners = (window.WARAKA_PRACTITIONERS || []).map((person) => ({ ...person, isDemo: true }));
+     updateCityOptions();
+     render();
+     return;
+@@ -149,7 +159,11 @@ async function loadHomeCatalog() {
+   document.querySelector("#productIntroNote").textContent = "Consultez les fiches produits publiées et leur statut documentaire.";
+   document.querySelector("#practitionerIntroNote").textContent = "Découvrez les profils publiés et les informations professionnelles communiquées à WARAKA.";
+   document.querySelector("#footerDemoDisclaimer").textContent = "Les contenus publiés par WARAKA ne constituent pas des recommandations de santé.";
++  productState = practitionerState = "loading";
++  render();
+   const results = await Promise.allSettled([dataService.listProducts(), dataService.listPractitioners()]);
++  productState = results[0].status === "fulfilled" ? "ready" : "error";
++  practitionerState = results[1].status === "fulfilled" ? "ready" : "error";
+   if (results[0].status === "fulfilled") products = results[0].value;
+   else {
+     console.error("Impossible de charger les produits WARAKA.", results[0].reason);
+diff --git a/assets/apple-touch-icon.png b/assets/apple-touch-icon.png
+index 5339aeb1235050825e2b8871861853b1f7b50356..e4c41ab8add408581481d5ae1f2b9547e6e2e587 100644
+GIT binary patch
+literal 4659
+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
+
+literal 2418
+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
+
+diff --git a/assets/favicon.svg b/assets/favicon.svg
+index 1e5ca75..9ff2386 100644
+--- a/assets/favicon.svg
++++ b/assets/favicon.svg
+@@ -1 +1 @@
+-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="#174b38"/><path d="M12 18h8l6 26 6-18 6 18 6-26h8L42 51h-8l-6-17-6 17h-8z" fill="#f5f2e8"/><circle cx="49" cy="49" r="7" fill="#b9df9a"/></svg>
+\ No newline at end of file
++<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img"><title>WARAKA | favicon</title><rect x="0" y="0" width="64" height="64" fill="#1A4B40" rx="11"/><g transform="translate(12.315 -5.82) scale(0.31)" fill="#FFFFFF" fill-rule="evenodd"><path d="M0 56H28L40 145L52 56H77L89 145L101 56H127L108 192H70L64 140L58 192H19L5 62Z" transform="translate(0 0)"/></g></svg>
+\ No newline at end of file
+diff --git a/assets/waraka-logo.svg b/assets/waraka-logo.svg
+new file mode 100644
+index 0000000..6a8c207
+--- /dev/null
++++ b/assets/waraka-logo.svg
+@@ -0,0 +1 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="607" height="252" viewBox="0 0 607 252" role="img"><title>WARAKA | WARAKA_nom_vert</title><g transform="translate(30 30) scale(1)" fill="#1A4B40" fill-rule="evenodd"><path d="M0 56H28L40 145L52 56H77L89 145L101 56H127L108 192H70L64 140L58 192H19L5 62Z" transform="translate(0 0)"/><path d="M0 77C0 65 9 56 21 56H57C69 56 78 65 78 77V192H21C9 192 0 183 0 171V120C0 108 9 99 21 99H53V83H0ZM17 126L25 133V165H53V126Z" transform="translate(135 0)"/><path d="M0 56H48C62 56 70 65 70 78V83H21L30 90V192H5V62Z" transform="translate(220 0)"/><path d="M0 77C0 65 9 56 21 56H57C69 56 78 65 78 77V192H21C9 192 0 183 0 171V120C0 108 9 99 21 99H53V83H0ZM17 126L25 133V165H53V126Z" transform="translate(297 0)"/><path d="M0 0H30V101L49 56H77L47 124L79 192H51L30 151V192H5V6Z" transform="translate(382 0)"/><path d="M0 77C0 65 9 56 21 56H57C69 56 78 65 78 77V192H21C9 192 0 183 0 171V120C0 108 9 99 21 99H53V83H0ZM17 126L25 133V165H53V126Z" transform="translate(469 0)"/></g></svg>
+\ No newline at end of file
+diff --git a/assets/waraka-signature.svg b/assets/waraka-signature.svg
+new file mode 100644
+index 0000000..b0d3ba6
+--- /dev/null
++++ b/assets/waraka-signature.svg
+@@ -0,0 +1 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="627" height="320" viewBox="0 0 627 320" role="img"><title>WARAKA | WARAKA_signature_vert</title><g transform="translate(40 40) scale(1)" fill="#1A4B40" fill-rule="evenodd"><path d="M0 56H28L40 145L52 56H77L89 145L101 56H127L108 192H70L64 140L58 192H19L5 62Z" transform="translate(0 0)"/><path d="M0 77C0 65 9 56 21 56H57C69 56 78 65 78 77V192H21C9 192 0 183 0 171V120C0 108 9 99 21 99H53V83H0ZM17 126L25 133V165H53V126Z" transform="translate(135 0)"/><path d="M0 56H48C62 56 70 65 70 78V83H21L30 90V192H5V62Z" transform="translate(220 0)"/><path d="M0 77C0 65 9 56 21 56H57C69 56 78 65 78 77V192H21C9 192 0 183 0 171V120C0 108 9 99 21 99H53V83H0ZM17 126L25 133V165H53V126Z" transform="translate(297 0)"/><path d="M0 0H30V101L49 56H77L47 124L79 192H51L30 151V192H5V6Z" transform="translate(382 0)"/><path d="M0 77C0 65 9 56 21 56H57C69 56 78 65 78 77V192H21C9 192 0 183 0 171V120C0 108 9 99 21 99H53V83H0ZM17 126L25 133V165H53V126Z" transform="translate(469 0)"/><g transform="translate(64 239) scale(0.020607908715325595 -0.020607908715325595)"><path d="M264 -10Q175 -10 123.5 11.5Q72 33 51.0 65.5Q30 98 30 130Q30 164 46.0 184.5Q62 205 88.0 214.0Q114 223 143 223Q143 138 181.5 94.0Q220 50 280 50Q339 50 371.5 81.0Q404 112 404 158Q404 209 362.5 240.0Q321 271 237 305Q167 334 126.0 365.5Q85 397 67.5 435.5Q50 474 50 523Q50 584 82.0 629.0Q114 674 169.5 699.0Q225 724 295 724Q405 724 456.5 690.5Q508 657 508 608Q508 573 477.5 549.0Q447 525 385 525Q385 553 374.5 585.0Q364 617 341.0 640.0Q318 663 279 663Q239 663 209.5 639.5Q180 616 180 571Q180 543 193.0 519.0Q206 495 242.0 471.5Q278 448 345 421Q448 379 492.0 331.0Q536 283 536 209Q536 145 502.5 95.5Q469 46 408.0 18.0Q347 -10 264 -10Z" transform="translate(0 0)"/><path d="M4 0V53H16Q43 53 61.5 67.0Q80 81 96 126L313 714H450L659 125Q674 83 692.5 68.0Q711 53 735 53H753V0H423V53H462Q477 53 491.0 62.0Q505 71 505 92Q505 104 502.0 115.5Q499 127 496 135L461 235H218L189 149Q185 137 181.0 120.5Q177 104 177 92Q177 73 191.0 63.0Q205 53 222 53H264V0ZM239 296H441L388 460Q378 494 365.5 536.0Q353 578 345 613Q336 581 323.0 540.5Q310 500 298 465Z" transform="translate(680 0)"/><path d="M85 613Q75 642 56.5 651.5Q38 661 23 661H0V714H330V661H284Q270 661 257.5 654.0Q245 647 245 628Q245 618 248.0 605.5Q251 593 254 585L356 277Q364 255 373.0 217.5Q382 180 385 153Q389 178 398.5 212.5Q408 247 417 274L520 578Q524 589 528.0 604.0Q532 619 532 627Q532 644 521.0 652.5Q510 661 492 661H440V714H698V661H650Q637 661 627.5 647.5Q618 634 602 588L398 0H298Z" transform="translate(1527 0)"/><path d="M394 -10Q280 -10 205.0 36.0Q130 82 92.5 165.0Q55 248 55 359Q55 470 92.5 552.0Q130 634 205.5 679.5Q281 725 395 725Q503 725 578.5 679.5Q654 634 693.0 551.5Q732 469 732 358Q732 247 692.5 164.5Q653 82 578.0 36.0Q503 -10 394 -10ZM394 55Q488 55 526.0 135.0Q564 215 564 358Q564 501 526.0 580.5Q488 660 395 660Q301 660 262.0 580.5Q223 501 223 358Q223 215 262.0 135.0Q301 55 394 55Z" transform="translate(2319 0)"/><path d="M28 0V53H70Q92 53 106.5 64.0Q121 75 121 118V596Q121 639 106.5 650.0Q92 661 70 661H28V714H373V661H331Q309 661 294.5 650.0Q280 639 280 596V118Q280 75 294.5 64.0Q309 53 331 53H373V0Z" transform="translate(3200 0)"/><path d="M28 0V53H70Q90 53 105.5 63.0Q121 73 121 113V600Q121 640 105.5 650.5Q90 661 70 661H28V714H350Q492 714 558.0 666.5Q624 619 624 529Q624 476 604.0 439.0Q584 402 553.0 378.0Q522 354 488 340L607 135Q633 92 656.0 72.5Q679 53 707 53H711V0H678Q618 0 578.0 7.0Q538 14 511.5 33.5Q485 53 464 90L345 310H279V113Q279 73 294.5 63.0Q310 53 330 53H373V0ZM335 368Q404 368 430.0 405.0Q456 442 456 515Q456 591 428.0 623.0Q400 655 333 655H279V368Z" transform="translate(3695 0)"/><path d="M264 -10Q175 -10 123.5 11.5Q72 33 51.0 65.5Q30 98 30 130Q30 164 46.0 184.5Q62 205 88.0 214.0Q114 223 143 223Q143 138 181.5 94.0Q220 50 280 50Q339 50 371.5 81.0Q404 112 404 158Q404 209 362.5 240.0Q321 271 237 305Q167 334 126.0 365.5Q85 397 67.5 435.5Q50 474 50 523Q50 584 82.0 629.0Q114 674 169.5 699.0Q225 724 295 724Q405 724 456.5 690.5Q508 657 508 608Q508 573 477.5 549.0Q447 525 385 525Q385 553 374.5 585.0Q364 617 341.0 640.0Q318 663 279 663Q239 663 209.5 639.5Q180 616 180 571Q180 543 193.0 519.0Q206 495 242.0 471.5Q278 448 345 421Q448 379 492.0 331.0Q536 283 536 209Q536 145 502.5 95.5Q469 46 408.0 18.0Q347 -10 264 -10Z" transform="translate(4496 0)"/><path d="M4 0V53H16Q43 53 61.5 67.0Q80 81 96 126L313 714H450L659 125Q674 83 692.5 68.0Q711 53 735 53H753V0H423V53H462Q477 53 491.0 62.0Q505 71 505 92Q505 104 502.0 115.5Q499 127 496 135L461 235H218L189 149Q185 137 181.0 120.5Q177 104 177 92Q177 73 191.0 63.0Q205 53 222 53H264V0ZM239 296H441L388 460Q378 494 365.5 536.0Q353 578 345 613Q336 581 323.0 540.5Q310 500 298 465Z" transform="translate(5530 0)"/><path d="M28 0V53H70Q91 53 106.0 64.0Q121 75 121 118V600Q121 640 105.5 650.5Q90 661 70 661H28V714H250L603 215V600Q603 640 587.5 650.5Q572 661 552 661H510V714H771V661H729Q708 661 693.0 650.0Q678 639 678 596V0H586L196 551V118Q196 75 211.0 64.0Q226 53 247 53H289V0Z" transform="translate(6377 0)"/><path d="M401 -10Q285 -10 208.0 36.0Q131 82 93.0 164.5Q55 247 55 358Q55 466 94.0 548.5Q133 631 210.0 677.5Q287 724 400 724Q515 724 571.5 690.5Q628 657 628 608Q628 571 596.0 546.0Q564 521 503 521Q503 554 493.0 586.0Q483 618 459.0 639.0Q435 660 393 660Q298 660 260.5 581.5Q223 503 223 358Q223 213 268.5 141.5Q314 70 425 70Q474 70 509.0 84.5Q544 99 568.5 121.0Q593 143 610 165Q627 151 627 122Q627 94 606.0 63.5Q585 33 536.0 11.5Q487 -10 401 -10Z" transform="translate(7259 0)"/><path d="M28 0V53H70Q91 53 106.0 63.0Q121 73 121 113V596Q121 639 106.5 650.0Q92 661 70 661H28V714H583L587 530H517L512 577Q508 614 493.5 633.5Q479 653 448 653H280V403H517V343H280V61H480Q510 61 524.5 82.5Q539 104 544 137L552 184H621L614 0Z" transform="translate(8021 0)"/><path d="M264 -10Q175 -10 123.5 11.5Q72 33 51.0 65.5Q30 98 30 130Q30 164 46.0 184.5Q62 205 88.0 214.0Q114 223 143 223Q143 138 181.5 94.0Q220 50 280 50Q339 50 371.5 81.0Q404 112 404 158Q404 209 362.5 240.0Q321 271 237 305Q167 334 126.0 365.5Q85 397 67.5 435.5Q50 474 50 523Q50 584 82.0 629.0Q114 674 169.5 699.0Q225 724 295 724Q405 724 456.5 690.5Q508 657 508 608Q508 573 477.5 549.0Q447 525 385 525Q385 553 374.5 585.0Q364 617 341.0 640.0Q318 663 279 663Q239 663 209.5 639.5Q180 616 180 571Q180 543 193.0 519.0Q206 495 242.0 471.5Q278 448 345 421Q448 379 492.0 331.0Q536 283 536 209Q536 145 502.5 95.5Q469 46 408.0 18.0Q347 -10 264 -10Z" transform="translate(8768 0)"/><path d="M154 0V53H196Q218 53 232.5 64.0Q247 75 247 118V653H167Q122 653 105.0 634.0Q88 615 84 582L77 520H10L15 714H638L643 520H576L569 582Q565 615 548.0 634.0Q531 653 486 653H406V118Q406 75 420.5 64.0Q435 53 457 53H499V0Z" transform="translate(9448 0)"/><path d="M28 0V53H70Q90 53 105.5 63.0Q121 73 121 113V600Q121 640 105.5 650.5Q90 661 70 661H28V714H350Q492 714 558.0 666.5Q624 619 624 529Q624 476 604.0 439.0Q584 402 553.0 378.0Q522 354 488 340L607 135Q633 92 656.0 72.5Q679 53 707 53H711V0H678Q618 0 578.0 7.0Q538 14 511.5 33.5Q485 53 464 90L345 310H279V113Q279 73 294.5 63.0Q310 53 330 53H373V0ZM335 368Q404 368 430.0 405.0Q456 442 456 515Q456 591 428.0 623.0Q400 655 333 655H279V368Z" transform="translate(10195 0)"/><path d="M4 0V53H16Q43 53 61.5 67.0Q80 81 96 126L313 714H450L659 125Q674 83 692.5 68.0Q711 53 735 53H753V0H423V53H462Q477 53 491.0 62.0Q505 71 505 92Q505 104 502.0 115.5Q499 127 496 135L461 235H218L189 149Q185 137 181.0 120.5Q177 104 177 92Q177 73 191.0 63.0Q205 53 222 53H264V0ZM239 296H441L388 460Q378 494 365.5 536.0Q353 578 345 613Q336 581 323.0 540.5Q310 500 298 465Z" transform="translate(10996 0)"/><path d="M387 -10Q257 -10 183.5 42.5Q110 95 110 218V600Q110 640 94.5 650.5Q79 661 59 661H16V714H361V661H319Q298 661 283.0 650.0Q268 639 268 596V210Q268 126 308.5 93.5Q349 61 417 61Q484 61 523.0 96.5Q562 132 562 208V600Q562 640 547.0 650.5Q532 661 511 661H469V714H731V661H688Q667 661 652.0 650.0Q637 639 637 596V206Q637 106 577.5 48.0Q518 -10 387 -10Z" transform="translate(11843 0)"/><path d="M10 0V53H16Q52 53 73.5 72.0Q95 91 120 123L295 351L130 608Q114 634 96.0 647.5Q78 661 44 661H31V714H362V661H359Q325 661 312.5 652.5Q300 644 300 632Q300 622 307.5 606.0Q315 590 326 573L409 449L496 571Q505 585 514.0 602.0Q523 619 523 632Q523 650 506.5 655.5Q490 661 467 661H464V714H698V661H689Q660 661 639.5 645.5Q619 630 590 589L445 391L629 106Q649 75 669.5 64.0Q690 53 709 53H722V0H392V53H397Q457 53 457 86Q457 97 451.5 110.0Q446 123 424 155L332 294L224 148Q215 135 206.5 119.0Q198 103 198 87Q198 71 212.0 62.0Q226 53 259 53H262V0Z" transform="translate(12684 0)"/><path d="M28 0V53H70Q92 53 106.5 64.0Q121 75 121 118V600Q121 640 106.0 650.5Q91 661 70 661H28V714H358Q524 714 618.0 627.0Q712 540 712 370Q712 261 672.0 177.5Q632 94 553.5 47.0Q475 0 358 0ZM335 62Q438 62 490.5 144.5Q543 227 543 370Q543 513 490.5 583.0Q438 653 336 653H279V62Z" transform="translate(13864 0)"/><path d="M45 460Q89 476 111.0 492.5Q133 509 133 538Q133 552 122.0 559.5Q111 567 96.5 575.5Q82 584 71.0 599.5Q60 615 60 645Q60 679 80.5 696.5Q101 714 132 714Q174 714 199.0 684.5Q224 655 224 604Q224 540 183.5 487.0Q143 434 45 408Z" transform="translate(14725 0)"/><path d="M4 0V53H16Q43 53 61.5 67.0Q80 81 96 126L313 714H450L659 125Q674 83 692.5 68.0Q711 53 735 53H753V0H423V53H462Q477 53 491.0 62.0Q505 71 505 92Q505 104 502.0 115.5Q499 127 496 135L461 235H218L189 149Q185 137 181.0 120.5Q177 104 177 92Q177 73 191.0 63.0Q205 53 222 53H264V0ZM239 296H441L388 460Q378 494 365.5 536.0Q353 578 345 613Q336 581 323.0 540.5Q310 500 298 465Z" transform="translate(15099 0)"/><path d="M28 0V53H70Q91 53 106.0 63.0Q121 73 121 113V600Q121 640 106.0 650.5Q91 661 70 661H28V714H582L587 530H517L512 578Q508 618 488.5 635.5Q469 653 438 653H279V380H516V321H279V118Q279 75 294.0 64.0Q309 53 331 53H393V0Z" transform="translate(15946 0)"/><path d="M28 0V53H70Q90 53 105.5 63.0Q121 73 121 113V600Q121 640 105.5 650.5Q90 661 70 661H28V714H350Q492 714 558.0 666.5Q624 619 624 529Q624 476 604.0 439.0Q584 402 553.0 378.0Q522 354 488 340L607 135Q633 92 656.0 72.5Q679 53 707 53H711V0H678Q618 0 578.0 7.0Q538 14 511.5 33.5Q485 53 464 90L345 310H279V113Q279 73 294.5 63.0Q310 53 330 53H373V0ZM335 368Q404 368 430.0 405.0Q456 442 456 515Q456 591 428.0 623.0Q400 655 333 655H279V368Z" transform="translate(16661 0)"/><path d="M28 0V53H70Q92 53 106.5 64.0Q121 75 121 118V596Q121 639 106.5 650.0Q92 661 70 661H28V714H373V661H331Q309 661 294.5 650.0Q280 639 280 596V118Q280 75 294.5 64.0Q309 53 331 53H373V0Z" transform="translate(17462 0)"/><path d="M577 -240Q517 -240 461.0 -216.0Q405 -192 367.0 -140.0Q329 -88 322 -4Q187 17 121.0 114.0Q55 211 55 359Q55 470 92.5 552.0Q130 634 205.5 679.5Q281 725 395 725Q503 725 578.5 679.5Q654 634 693.0 551.5Q732 469 732 358Q732 218 669.5 123.5Q607 29 489 0Q495 -73 516.5 -112.5Q538 -152 569.0 -167.0Q600 -182 633 -182H649V-240ZM394 55Q488 55 526.0 135.0Q564 215 564 358Q564 501 526.0 580.5Q488 660 395 660Q301 660 262.0 580.5Q223 501 223 358Q223 215 262.0 135.0Q301 55 394 55Z" transform="translate(17957 0)"/><path d="M387 -10Q257 -10 183.5 42.5Q110 95 110 218V600Q110 640 94.5 650.5Q79 661 59 661H16V714H361V661H319Q298 661 283.0 650.0Q268 639 268 596V210Q268 126 308.5 93.5Q349 61 417 61Q484 61 523.0 96.5Q562 132 562 208V600Q562 640 547.0 650.5Q532 661 511 661H469V714H731V661H688Q667 661 652.0 650.0Q637 639 637 596V206Q637 106 577.5 48.0Q518 -10 387 -10Z" transform="translate(18838 0)"/><path d="M28 0V53H70Q91 53 106.0 63.0Q121 73 121 113V596Q121 639 106.5 650.0Q92 661 70 661H28V714H583L587 530H517L512 577Q508 614 493.5 633.5Q479 653 448 653H280V403H517V343H280V61H480Q510 61 524.5 82.5Q539 104 544 137L552 184H621L614 0Z" transform="translate(19679 0)"/></g></g></svg>
+\ No newline at end of file
+diff --git a/data-service.js b/data-service.js
+index 9976c88..aa91c3e 100644
+--- a/data-service.js
++++ b/data-service.js
+@@ -4,24 +4,27 @@
+   const publishableKey = String(config.publishableKey || "").trim();
+ 
+   function isConfigured() {
+-    return Boolean(baseUrl && publishableKey);
++    return Boolean(baseUrl || publishableKey);
+   }
+ 
+   async function select(table, query) {
++    if (!baseUrl || !publishableKey) throw new Error("Configuration Supabase incomplète.");
+     const url = `${baseUrl}/rest/v1/${table}?${query}`;
+-    const response = await fetch(url, {
+-      headers: {
+-        apikey: publishableKey,
+-        Authorization: `Bearer ${publishableKey}`,
+-        Accept: "application/json",
+-      },
+-    });
++    const headers = { apikey: publishableKey, Accept: "application/json" };
++    // A publishable key is not a JWT. Only legacy anon JWTs use Bearer auth.
++    if (publishableKey.startsWith("eyJ")) headers.Authorization = `Bearer ${publishableKey}`;
+ 
+-    if (!response.ok) {
+-      const detail = await response.text();
+-      throw new Error(`Supabase (${response.status}): ${detail || response.statusText}`);
++    const controller = new AbortController();
++    const timeout = setTimeout(() => controller.abort(), 8000);
++    try {
++      const response = await fetch(url, { headers, signal: controller.signal });
++      if (!response.ok) throw new Error(`Supabase ${table}: HTTP ${response.status}`);
++      const rows = await response.json();
++      if (!Array.isArray(rows)) throw new Error(`Supabase ${table}: réponse inattendue`);
++      return rows;
++    } finally {
++      clearTimeout(timeout);
+     }
+-    return response.json();
+   }
+ 
+   const categoryLabels = {
+diff --git a/index.html b/index.html
+index e651be6..f36185a 100644
+--- a/index.html
++++ b/index.html
+@@ -4,10 +4,10 @@
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <meta name="description" content="WARAKA documente les produits traditionnels et référence des praticiens au Cameroun. Explorez les répertoires et découvrez les informations disponibles." />
+-    <meta name="theme-color" content="#174b38" />
++    <meta name="theme-color" content="#1A4B40" />
+     <title>WARAKA | Produits traditionnels et praticiens</title>
+-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+-    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
++    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
++    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+     <link rel="canonical" href="https://waraka-bea6.vercel.app/" />
+     <meta property="og:type" content="website" />
+     <meta property="og:locale" content="fr_FR" />
+@@ -34,8 +34,7 @@
+   <body>
+     <header class="site-header">
+       <a class="brand" href="#accueil" aria-label="WARAKA, accueil">
+-        <span class="brand-mark" aria-hidden="true">W</span>
+-        <span>WARAKA</span>
++        <img class="brand-logo" src="assets/waraka-logo.svg" alt="WARAKA" width="126" height="52" />
+       </a>
+       <nav class="main-nav" aria-label="Navigation principale">
+         <a href="produits.html">Produits</a>
+@@ -55,15 +54,14 @@
+         />
+         <div class="hero-shade"></div>
+         <div class="hero-content">
+-          <p class="eyebrow light-eyebrow">SAVOIRS TRADITIONNELS · CAMEROUN</p>
+-          <h1>WARAKA</h1>
+-          <p class="hero-lead">Produits traditionnels documentés. Praticiens référencés.</p>
++          <p class="eyebrow light-eyebrow">SAVOIRS ANCESTRAUX D’AFRIQUE</p>
++          <h1>Produits traditionnels et praticiens</h1>
+           <p class="hero-copy">
+-            Une plateforme pour consulter des informations claires et découvrir les acteurs, avec une distinction visible entre données déclarées et éléments examinés.
++            Consultez les fiches de WARAKA au Cameroun et repérez ce qui a été déclaré ou examiné.
+           </p>
+           <div class="hero-actions">
+             <a class="button button-light" href="produits.html">Explorer les produits</a>
+-            <a class="button button-outline-light" href="praticiens.html">Trouver un praticien</a>
++            <a class="button button-outline-light" href="praticiens.html">Voir les praticiens</a>
+           </div>
+         </div>
+       </section>
+@@ -92,7 +90,7 @@
+             <h2>Produits traditionnels</h2>
+             <p id="productIntroNote">Consultez les fiches et leur statut documentaire. Les exemples affichés servent à présenter la plateforme.</p>
+           </div>
+-          <div class="heading-actions"><span class="section-count" id="productCount">0 fiche</span><a class="section-count view-all-link" href="produits.html">Voir tous les produits <span aria-hidden="true">→</span></a></div>
++          <div class="heading-actions"><span class="section-count" id="productCount" aria-live="polite"></span><a class="section-count view-all-link" href="produits.html">Voir tous les produits <span aria-hidden="true">→</span></a></div>
+         </div>
+         <div class="filter-row" aria-label="Filtrer les produits">
+           <button class="filter-chip is-active" type="button" aria-pressed="true" data-product-category="all">Tout</button>
+@@ -101,7 +99,7 @@
+           <button class="filter-chip" type="button" aria-pressed="false" data-product-category="plante">Produits botaniques</button>
+         </div>
+         <div class="card-grid" id="productList" aria-live="polite"></div>
+-        <p class="empty-state" id="productEmpty" hidden>Aucun produit ne correspond à cette recherche.</p>
++        <p class="empty-state" id="productEmpty" role="status" hidden>Aucun produit ne correspond à cette recherche.</p>
+       </section>
+ 
+       <section class="section practitioners-section" id="praticiens">
+@@ -122,7 +120,7 @@
+           </label>
+         </div>
+         <div class="card-grid practitioner-grid" id="practitionerList" aria-live="polite"></div>
+-        <p class="empty-state" id="practitionerEmpty" hidden>Aucun praticien ne correspond à cette recherche.</p>
++        <p class="empty-state" id="practitionerEmpty" role="status" hidden>Aucun praticien ne correspond à cette recherche.</p>
+       </section>
+ 
+             <section class="contact-section" id="services">
+@@ -158,8 +156,8 @@
+     </main>
+ 
+     <footer class="site-footer">
+-      <a class="brand footer-brand" href="#accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
+-      <p id="footerDemoDisclaimer">Les contenus de cette version sont des exemples de démonstration, pas des recommandations de santé.</p>
++      <a class="brand footer-brand" href="#accueil"><img class="brand-logo" src="assets/waraka-signature.svg" alt="WARAKA • Savoirs ancestraux d’Afrique" width="146" height="75" /></a>
++      <p id="footerDemoDisclaimer">Les contenus publiés par WARAKA ne constituent pas des recommandations de santé.</p>
+       <a href="#accueil">Retour en haut</a>
+     </footer>
+ 
+diff --git a/praticiens.html b/praticiens.html
+index 4e53b59..95a5dbc 100644
+--- a/praticiens.html
++++ b/praticiens.html
+@@ -4,10 +4,10 @@
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <meta name="description" content="Consultez les profils des praticiens traditionnels référencés sur WARAKA et découvrez les informations communiquées sur leurs activités au Cameroun." />
+-    <meta name="theme-color" content="#174b38" />
++    <meta name="theme-color" content="#1A4B40" />
+     <title>Praticiens | WARAKA</title>
+-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+-    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
++    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
++    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+     <link rel="canonical" href="https://waraka-bea6.vercel.app/praticiens.html" />
+     <meta property="og:type" content="website" />
+     <meta property="og:locale" content="fr_FR" />
+@@ -30,9 +30,9 @@
+   </head>
+   <body>
+     <header class="site-header">
+-      <a class="brand" href="index.html#accueil" aria-label="WARAKA, accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
++      <a class="brand" href="index.html#accueil" aria-label="WARAKA, accueil"><img class="brand-logo" src="assets/waraka-logo.svg" alt="WARAKA" width="126" height="52" /></a>
+       <nav class="main-nav" aria-label="Navigation principale">
+-        <a href="index.html#accueil">Accueil</a>
++        <a href="produits.html">Produits</a>
+         <a class="current-nav" href="praticiens.html" aria-current="page">Praticiens</a>
+         <a href="index.html#confiance">Notre approche</a>
+       </nav>
+@@ -72,18 +72,19 @@
+           <span class="section-count" id="practitionerCount" aria-live="polite"></span>
+         </div>
+         <div class="card-grid practitioner-grid" id="practitionerCatalog" aria-live="polite"></div>
+-        <p class="empty-state" id="practitionerCatalogEmpty" hidden>Aucun profil ne correspond à cette recherche.</p>
++        <p class="empty-state" id="practitionerCatalogEmpty" role="status" hidden>Aucun profil ne correspond à cette recherche.</p>
++        <button class="button button-primary" id="practitionerRetry" type="button" hidden>Réessayer</button>
+       </section>
+ 
+       <section class="catalog-bottom">
+-        <div><p class="eyebrow">TRANSPARENCE</p><h2>Informations déclarées et éléments examinés.</h2><p>Les profils affichés sont des exemples fictifs. Une publication réelle devra préciser les informations communiquées et les vérifications réalisées par WARAKA.</p></div>
++        <div><p class="eyebrow">TRANSPARENCE</p><h2>Informations déclarées et éléments examinés.</h2><p>WARAKA distingue les informations communiquées et les éléments effectivement examinés.</p></div>
+         <a class="button button-primary" href="index.html#contact">Contacter WARAKA</a>
+       </section>
+     </main>
+ 
+     <footer class="site-footer">
+-      <a class="brand footer-brand" href="index.html#accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
+-      <p>Les contenus de cette version sont des exemples de démonstration, pas des recommandations de santé.</p>
++      <a class="brand footer-brand" href="index.html#accueil"><img class="brand-logo" src="assets/waraka-signature.svg" alt="WARAKA • Savoirs ancestraux d’Afrique" width="146" height="75" /></a>
++      <p>Les contenus publiés par WARAKA ne constituent pas des recommandations de santé.</p>
+       <a href="index.html#accueil">Retour à l’accueil</a>
+     </footer>
+ 
+diff --git a/praticiens.js b/praticiens.js
+index 6f0f734..51ddb8f 100644
+--- a/praticiens.js
++++ b/praticiens.js
+@@ -7,6 +7,8 @@ const catalog = document.querySelector("#practitionerCatalog");
+ const count = document.querySelector("#practitionerCount");
+ const emptyState = document.querySelector("#practitionerCatalogEmpty");
+ const sourceNote = document.querySelector("#practitionerSourceNote");
++const retry = document.querySelector("#practitionerRetry");
++let loadState = "ready";
+ const dialog = document.querySelector("#practitionerDialog");
+ const dialogContent = document.querySelector("#practitionerDialogContent");
+ 
+@@ -47,6 +49,7 @@ function updateCityOptions() {
+ }
+ 
+ function render() {
++  if (loadState !== "ready") return;
+   const query = normalize(searchInput.value);
+   const selectedCity = cityFilter.value;
+   const visible = practitioners.filter((person) => {
+@@ -57,6 +60,9 @@ function render() {
+   catalog.innerHTML = visible.map(practitionerCard).join("");
+   count.textContent = `${visible.length} profil${visible.length === 1 ? "" : "s"}`;
+   emptyState.hidden = visible.length > 0;
++  emptyState.textContent = practitioners.length
++    ? "Aucun profil ne correspond à cette recherche."
++    : "Aucun profil n’est publié pour le moment.";
+ }
+ 
+ function openDetails(id) {
+@@ -76,6 +82,10 @@ function openDetails(id) {
+ searchInput.addEventListener("input", render);
+ cityFilter.addEventListener("change", render);
+ document.querySelector("#practitionerSearchButton").addEventListener("click", render);
++searchInput.addEventListener("keydown", (event) => {
++  if (event.key === "Enter") render();
++});
++retry.addEventListener("click", loadPractitioners);
+ document.addEventListener("click", (event) => {
+   const trigger = event.target.closest("[data-practitioner-detail]");
+   if (trigger) openDetails(trigger.dataset.practitionerDetail);
+@@ -93,21 +103,26 @@ async function loadPractitioners() {
+     return;
+   }
+ 
++  loadState = "loading";
++  retry.hidden = true;
+   sourceNote.hidden = false;
+   sourceNote.textContent = "Chargement des profils WARAKA…";
++  emptyState.textContent = "Chargement des profils WARAKA…";
++  emptyState.hidden = false;
+   try {
+     practitioners = await dataService.listPractitioners();
++    loadState = "ready";
+     updateCityOptions();
+     sourceNote.textContent = "Seuls les profils publiés par WARAKA apparaissent dans cet annuaire.";
+     render();
+   } catch (error) {
+     console.error("Impossible de charger l’annuaire WARAKA.", error);
+-    practitioners = [];
+-    catalog.innerHTML = "";
+-    count.textContent = "0 profil";
+-    sourceNote.textContent = "L’annuaire est momentanément indisponible. Réessayez dans quelques instants.";
+-    emptyState.textContent = "Impossible de charger les profils. Vérifiez la connexion ou réessayez plus tard.";
++    loadState = "error";
++    sourceNote.textContent = "Impossible de charger les profils.";
++    count.textContent = "";
++    emptyState.textContent = "Impossible de charger les profils. Réessayez dans quelques instants.";
+     emptyState.hidden = false;
++    retry.hidden = false;
+   }
+ }
+ 
+diff --git a/produits.html b/produits.html
+index 719eb79..a4d0526 100644
+--- a/produits.html
++++ b/produits.html
+@@ -4,10 +4,10 @@
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <meta name="description" content="Explorez les fiches de produits traditionnels documentés sur WARAKA et consultez les informations disponibles au Cameroun." />
+-    <meta name="theme-color" content="#174b38" />
++    <meta name="theme-color" content="#1A4B40" />
+     <title>Produits traditionnels | WARAKA</title>
+-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+-    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
++    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
++    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+     <link rel="canonical" href="https://waraka-bea6.vercel.app/produits.html" />
+     <meta property="og:type" content="website" />
+     <meta property="og:locale" content="fr_FR" />
+@@ -30,10 +30,10 @@
+   </head>
+   <body>
+     <header class="site-header">
+-      <a class="brand" href="index.html#accueil" aria-label="WARAKA, accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
++      <a class="brand" href="index.html#accueil" aria-label="WARAKA, accueil"><img class="brand-logo" src="assets/waraka-logo.svg" alt="WARAKA" width="126" height="52" /></a>
+       <nav class="main-nav" aria-label="Navigation principale">
+         <a class="current-nav" href="produits.html" aria-current="page">Produits</a>
+-        <a href="index.html#praticiens">Praticiens</a>
++        <a href="praticiens.html">Praticiens</a>
+         <a href="index.html#confiance">Notre approche</a>
+       </nav>
+       <a class="header-link" href="index.html#contact">Nous contacter</a>
+@@ -70,18 +70,19 @@
+           <span class="section-count" id="catalogCount" aria-live="polite"></span>
+         </div>
+         <div class="card-grid" id="catalogList" aria-live="polite"></div>
+-        <p class="empty-state" id="catalogEmpty" hidden>Aucun produit ne correspond à cette recherche.</p>
++        <p class="empty-state" id="catalogEmpty" role="status" hidden>Aucun produit ne correspond à cette recherche.</p>
++        <button class="button button-primary" id="catalogRetry" type="button" hidden>Réessayer</button>
+       </section>
+ 
+       <section class="catalog-bottom">
+-        <div><p class="eyebrow">INFORMATION</p><h2>Une fiche n’est pas une certification.</h2><p>WARAKA distingue les informations communiquées des éléments effectivement examinés. Aucun produit de démonstration ne doit être interprété comme un conseil de santé.</p></div>
+-        <a class="button button-primary" href="index.html#praticiens">Découvrir les praticiens</a>
++        <div><p class="eyebrow">INFORMATION</p><h2>Une fiche n’est pas une certification.</h2><p>WARAKA distingue les informations communiquées des éléments effectivement examinés. Les exemples de démonstration sont signalés sur les fiches concernées.</p></div>
++        <a class="button button-primary" href="praticiens.html">Découvrir les praticiens</a>
+       </section>
+     </main>
+ 
+     <footer class="site-footer">
+-      <a class="brand footer-brand" href="index.html#accueil"><span class="brand-mark" aria-hidden="true">W</span><span>WARAKA</span></a>
+-      <p>Les contenus de cette version sont des exemples de démonstration, pas des recommandations de santé.</p>
++      <a class="brand footer-brand" href="index.html#accueil"><img class="brand-logo" src="assets/waraka-signature.svg" alt="WARAKA • Savoirs ancestraux d’Afrique" width="146" height="75" /></a>
++      <p>Les contenus publiés par WARAKA ne constituent pas des recommandations de santé.</p>
+       <a href="index.html#accueil">Retour à l’accueil</a>
+     </footer>
+ 
+diff --git a/produits.js b/produits.js
+index 9f5ea29..ae0267b 100644
+--- a/produits.js
++++ b/produits.js
+@@ -6,6 +6,8 @@ const catalogList = document.querySelector("#catalogList");
+ const catalogCount = document.querySelector("#catalogCount");
+ const catalogEmpty = document.querySelector("#catalogEmpty");
+ const sourceNote = document.querySelector("#catalogSourceNote");
++const retry = document.querySelector("#catalogRetry");
++let loadState = "ready";
+ const dialog = document.querySelector("#productDialog");
+ const dialogContent = document.querySelector("#dialogContent");
+ let activeCategory = "all";
+@@ -23,7 +25,7 @@ function normalize(value) {
+ function productCard(product) {
+   const badge = product.isDemo
+     ? "Démonstration"
+-    : product.isFeatured ? "Mis en avant par WARAKA" : "Référencement validé";
++    : product.isFeatured ? "Mis en avant par WARAKA" : "Fiche publiée";
+   const image = product.image || "assets/waraka-apercu.jpg";
+   return `
+     <article class="directory-card">
+@@ -42,6 +44,7 @@ function productCard(product) {
+ }
+ 
+ function render() {
++  if (loadState !== "ready") return;
+   const query = normalize(searchInput.value);
+   const visible = products.filter((product) => {
+     const categoryMatches = activeCategory === "all" || product.category === activeCategory;
+@@ -51,9 +54,9 @@ function render() {
+   catalogList.innerHTML = visible.map(productCard).join("");
+   catalogCount.textContent = `${visible.length} fiche${visible.length === 1 ? "" : "s"}`;
+   catalogEmpty.hidden = visible.length > 0;
+-  if (!visible.length && dataService?.isConfigured()) {
+-    catalogEmpty.textContent = "Aucun produit validé ne correspond à cette recherche.";
+-  }
++  catalogEmpty.textContent = products.length
++    ? "Aucun produit ne correspond à cette recherche."
++    : "Aucune fiche produit n’est publiée pour le moment.";
+ }
+ 
+ function openDetails(id) {
+@@ -84,6 +87,10 @@ document.querySelectorAll("[data-product-category]").forEach((button) => {
+ 
+ searchInput.addEventListener("input", render);
+ document.querySelector("#catalogSearchButton").addEventListener("click", render);
++searchInput.addEventListener("keydown", (event) => {
++  if (event.key === "Enter") render();
++});
++retry.addEventListener("click", loadProducts);
+ document.addEventListener("click", (event) => {
+   const trigger = event.target.closest("[data-product-detail]");
+   if (trigger) openDetails(trigger.dataset.productDetail);
+@@ -100,22 +107,26 @@ async function loadProducts() {
+     return;
+   }
+ 
++  loadState = "loading";
++  retry.hidden = true;
++  sourceNote.hidden = false;
+   sourceNote.textContent = "Chargement du catalogue WARAKA…";
+-  catalogEmpty.hidden = true;
++  catalogEmpty.textContent = "Chargement du catalogue WARAKA…";
++  catalogEmpty.hidden = false;
+   try {
+     products = await dataService.listProducts();
++    loadState = "ready";
+     sourceNote.textContent = "Les fiches publiées sont issues du catalogue WARAKA et restent soumises à notre démarche documentaire.";
+     render();
+   } catch (error) {
+     console.error("Impossible de charger le catalogue WARAKA.", error);
+-    products = [];
+-    sourceNote.textContent = "Le catalogue est momentanément indisponible. Réessayez dans quelques instants.";
+-    catalogList.innerHTML = "";
+-    catalogCount.textContent = "0 fiche";
+-    catalogEmpty.textContent = "Impossible de charger les produits. Vérifiez la connexion ou réessayez plus tard.";
++    loadState = "error";
++    sourceNote.textContent = "Impossible de charger les produits.";
++    catalogCount.textContent = "";
++    catalogEmpty.textContent = "Impossible de charger les produits. Réessayez dans quelques instants.";
+     catalogEmpty.hidden = false;
++    retry.hidden = false;
+   }
+ }
+ 
+-if (dataService?.isConfigured()) sourceNote.hidden = false;
+ loadProducts();
+diff --git a/style.css b/style.css
+index 70a6801..eb9082a 100644
+--- a/style.css
++++ b/style.css
+@@ -1,11 +1,11 @@
+ :root {
+-  --forest: #174b38;
+-  --forest-deep: #103827;
++  --forest: #1a4b40;
++  --forest-deep: #12382f;
+   --leaf: #2d7658;
+-  --mint: #eaf2ed;
+-  --paper: #f7f9f7;
++  --mint: #d6e3d9;
++  --paper: #f6f3eb;
+   --white: #ffffff;
+-  --ink: #1f2a24;
++  --ink: #17231f;
+   --muted: #64726a;
+   --line: #dce5df;
+   --gold: #d9b46d;
+@@ -73,14 +73,10 @@ dialog:focus-visible {
+   font-weight: 800;
+ }
+ 
+-.brand-mark {
+-  display: grid;
+-  width: 36px;
+-  height: 36px;
+-  place-items: center;
+-  border-radius: 50%;
+-  background: var(--forest);
+-  color: var(--white);
++.brand-logo {
++  display: block;
++  width: 126px;
++  height: auto;
+ }
+ 
+ .main-nav {
+@@ -175,13 +171,11 @@ h1 {
+   line-height: 1;
+ }
+ 
+-.hero-lead {
+-  max-width: 680px;
+-  margin-bottom: 14px;
+-  font-family: "Manrope", sans-serif;
+-  font-size: clamp(1.35rem, 3vw, 2rem);
+-  font-weight: 700;
+-  line-height: 1.25;
++.hero h1 {
++  max-width: 780px;
++  margin-bottom: 20px;
++  font-size: clamp(2.15rem, 6vw, 4.5rem);
++  line-height: 1.1;
+ }
+ 
+ .hero-copy {
+@@ -592,9 +586,8 @@ h1 {
+   font-size: 0.85rem;
+ }
+ 
+-.footer-brand .brand-mark {
+-  width: 30px;
+-  height: 30px;
++.footer-brand .brand-logo {
++  width: 146px;
+ }
+ 
+ .site-footer p {
+@@ -993,3 +986,7 @@ h1 {
+     margin-bottom: 18px;
+   }
+ }
++
++button[hidden] {
++  display: none;
++}
+-- 
+2.56.1
+
